@@ -7,7 +7,7 @@ export default function Bookmarks() {
   const { user } = useUserStore();
   const navigate = useNavigate();
 
-  // 🔐 로그인 안 된 경우 접근 제한
+  // 로그인 안 된 경우 접근 제한
   if (!user) {
     return (
       <div className="p-6 text-center">

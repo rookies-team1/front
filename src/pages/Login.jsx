@@ -4,7 +4,8 @@ import { useUserStore } from "../store/userStore";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const { loginUser, user } = useUserStore();
+  const { loginUser } = useUserStore();
+//   const { loginUser, user } = useUserStore();
   const navigate = useNavigate();
 
   const handleChange = (e) =>

@@ -1,7 +1,8 @@
+// import { useState, useEffect } from "react";
+import { useBookmarkStore } from "../store/bookmarkStore"; // 북마크 상태 관리
+import { useUserStore } from "../store/userStore"; // 사용자 상태 관리
 import { useNavigate } from "react-router-dom";
 import { useCategoryStore } from "../store/categoryStore";
-import { useBookmarkStore } from "../store/bookmarkStore";
-import { useUserStore } from "../store/userStore";
 
 const dummyCompanies = ["삼성전자", "카카오"];
 const dummyNews = [
@@ -9,7 +10,7 @@ const dummyNews = [
     id: 1,
     company: "삼성전자",
     title: "삼성전자, 반도체 수출 증가",
-    summary: "반도체 수출이 25% 증가했다는 소식입니다.",
+    summary: "반도체 수출이 25% 증가했다는 소식입니다.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   },
   {
     id: 2,
@@ -22,7 +23,7 @@ const dummyNews = [
 export default function Home() {
   const navigate = useNavigate();
   const { selectedCategory, setSelectedCategory } = useCategoryStore();
-  const { bookmarks, toggleBookmark } = useBookmarkStore();
+  const { bookmarks, toggleBookmark } = useBookmarkStore(); // 북마크 상태
   const { user } = useUserStore();
 
   const filteredNews = selectedCategory
@@ -80,7 +81,7 @@ export default function Home() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    toggleBookmark(news);
+                    toggleBookmark(news); // 북마크 추가/제거
                   }}
                   className={`text-xl ${
                     isBookmarked(news.id)
