@@ -34,20 +34,32 @@ export default function CompanyCategoryList() {
   }
 
   return (
-    <div className="mb-4 flex gap-2">
-      {companies.map((company, index) => (
+    <div className="mb-4">
+      <div className="flex flex-wrap justify-center gap-3"> {/* 화면 중앙 정렬 */}
+        {companies.map((company, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedCategory(company)}
+            className={`px-4 py-2 rounded-md border ${
+              selectedCategory === company
+                ? "bg-blue-500 text-white"
+                : "bg-white text-black border-gray-300"
+            }`}
+          >
+            {company}
+          </button>
+        ))}
         <button
-          key={index}
-          onClick={() => setSelectedCategory(company)}
-          className={`px-3 py-1 rounded border ${
-            selectedCategory === company
+          onClick={() => setSelectedCategory(null)} // 전체 보기 버튼
+          className={`px-4 py-2 rounded-md border ${
+            selectedCategory === null
               ? "bg-blue-500 text-white"
               : "bg-white text-black border-gray-300"
           }`}
         >
-          {company}
+          전체 보기
         </button>
-      ))}
+      </div>
     </div>
   );
 }

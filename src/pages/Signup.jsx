@@ -95,7 +95,7 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             name="username"
-            placeholder="아이디"
+            placeholder="이름"
             onChange={handleChange}
             required
             className="w-full p-2 border rounded"

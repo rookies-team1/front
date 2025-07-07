@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../store/userStore";
 import { signIn } from "../utils/api"; // API 함수 가져오기
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(""); 
   const navigate = useNavigate(); // 네비게이션을 사용하여 로그인 후 이동
+  const { setUser } = useUserStore(); // Zustand의 setUser 사용
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,7 +26,13 @@ export default function Login() {
       const token = await signIn(loginData);
       console.log('로그인 성공, 받은 토큰:', token);
       localStorage.setItem('accessToken', token); // 받은 토큰 로컬 스토리지에 저장
-      navigate("/dashboard");  // 로그인 후 이동할 페이지
+
+      const user = { email: form.email, name: form.email.split('@')[0] }; // 사용자의 이메일로 이름 설정
+      localStorage.setItem("user", JSON.stringify(user)); // 로컬 스토리지에 사용자 정보 저장
+
+      setUser(user);  // Zustand 상태 업데이트
+
+      navigate("/");  // 로그인 후 이동할 페이지 (홈 페이지)
     } catch (error) {
       console.error('로그인 오류:', error.message);  // 오류 메시지 출력
       setError(error.message);  // 에러 상태 업데이트
