@@ -1,13 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/userStore";
+import { useEffect } from "react";
 
 export default function Navbar() {
   const { user, setUser } = useUserStore();
   const navigate = useNavigate();
 
+  // 로그인 상태를 로컬 스토리지에서 초기화
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser); // 로컬 스토리지에서 사용자 정보를 불러오기
+    }
+  }, [setUser]);
+
   const handleLogout = () => {
     setUser(null); // Zustand로 로그인 정보 초기화
-    navigate("/login");
+    localStorage.removeItem("user"); // 로컬 스토리지에서 사용자 정보 삭제
+    navigate("/login"); // 로그인 페이지로 리디렉션
   };
 
   return (
