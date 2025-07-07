@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUserStore } from "../store/userStore";
-import { signIn } from "../utils/api"; // API 연동
+import { signIn } from "../utils/api"; // API 함수 가져오기
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const { setUser } = useUserStore(); // 상태 관리
-  const navigate = useNavigate();
+  const [error, setError] = useState(""); 
+  const navigate = useNavigate(); // 네비게이션을 사용하여 로그인 후 이동
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,20 +14,20 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 백엔드에서 로그인 API 호출
-    try {
-      const response = await signIn(form.email, form.password); // 로그인 API 호출
+    const loginData = {
+      email: form.email,
+      password: form.password,
+    };
 
-      if (response && response.user) {
-        // 로그인 성공 시 상태 업데이트
-        setUser(response.user);
-        navigate("/"); // 홈 페이지로 이동
-      } else {
-        alert("이메일 또는 비밀번호가 틀렸습니다.");
-      }
+    try {
+      // 로그인 API 호출
+      const token = await signIn(loginData);
+      console.log('로그인 성공, 받은 토큰:', token);
+      localStorage.setItem('accessToken', token); // 받은 토큰 로컬 스토리지에 저장
+      navigate("/dashboard");  // 로그인 후 이동할 페이지
     } catch (error) {
-      alert("로그인에 실패했습니다. 다시 시도해 주세요.");
-      console.error("Login Error:", error);
+      console.error('로그인 오류:', error.message);  // 오류 메시지 출력
+      setError(error.message);  // 에러 상태 업데이트
     }
   };
 
@@ -53,6 +52,7 @@ export default function Login() {
             required
             className="w-full p-2 border rounded"
           />
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <button className="w-full bg-blue-600 text-white p-2 rounded">로그인</button>
         </form>
       </div>

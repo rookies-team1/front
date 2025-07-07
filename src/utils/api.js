@@ -82,16 +82,28 @@ export const signUp = async (formData) => {
 export const signIn = async (loginData) => {
   try {
     const response = await axiosInstance.post('/auth/signin', loginData);
-    return response.data;  // 서버 응답 데이터 반환 (accessToken 포함)
+
+    console.log('응답 데이터:', response.data); // 응답 데이터 확인
+
+    if (response.data.success) {
+      return response.data.data.accessToken; // accessToken 반환
+    } else {
+      throw new Error(response.data.message || "로그인에 실패했습니다.");
+    }
+
   } catch (error) {
     if (error.response) {
-      // 400 에러 등 처리
-      throw new Error(error.response?.data?.errorMessage || "로그인에 실패했습니다.");
+      console.error('서버 오류:', error.response?.data); // 오류 데이터 확인
+      throw new Error(error.response?.data?.message || "로그인에 실패했습니다.");
     } else {
+      console.error('네트워크 오류:', error.message); // 네트워크 오류 처리
       throw new Error("네트워크 오류입니다.");
     }
   }
 };
+
+
+
 
 // 토큰 재발급 (선택적)
 export const refreshToken = async () => {
