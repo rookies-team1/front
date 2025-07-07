@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchNewsTitles, fetchNewsByCompany } from '../utils/api'; // API 함수 가져오기
+import { fetchCompanies, fetchNewsTitles, fetchNewsByCompany } from '../utils/api'; // API 함수 가져오기
 
 export default function Home() {
   const navigate = useNavigate();
+  const [companies, setCompanies] = useState([]); // 기업 목록 상태
   const [newsList, setNewsList] = useState([]); // 뉴스 목록 상태
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
   const [error, setError] = useState(null); // 에러 상태
@@ -13,27 +14,33 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+        // 기업 목록 가져오기
+        const companyData = await fetchCompanies();
+        setCompanies(companyData); // 기업 목록 상태 업데이트
+
         let newsData;
         if (selectedCategory) {
-          newsData = await fetchNewsByCompany(selectedCategory); // 선택된 카테고리 뉴스 가져오기
+          // 선택된 카테고리에 맞는 뉴스 가져오기
+          newsData = await fetchNewsByCompany(selectedCategory);
         } else {
-          newsData = await fetchNewsTitles(); // 모든 뉴스 제목 가져오기
+          // 모든 뉴스 제목 가져오기
+          newsData = await fetchNewsTitles();
         }
 
         // 응답에서 'data' 속성만 추출하여 상태에 저장
         if (newsData && newsData.data && Array.isArray(newsData.data)) {
           setNewsList(newsData.data); // 뉴스 목록 업데이트
         } else {
-          setError("뉴스 데이터를 불러오는 데 문제가 발생했습니다.");
+          setError('뉴스 데이터를 불러오는 데 문제가 발생했습니다.');
         }
       } catch (error) {
-        setError('뉴스 데이터를 불러오는 데 문제가 발생했습니다.');
+        setError('기업 목록 또는 뉴스 데이터를 불러오는 데 문제가 발생했습니다.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchData(); // 데이터 호출
   }, [selectedCategory]); // selectedCategory가 바뀔 때마다 데이터를 새로 받아옴
 
   if (isLoading) {
@@ -48,9 +55,9 @@ export default function Home() {
     <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">🏢 기업 카테고리</h2>
       <div className="flex gap-3 mb-6">
-        {['삼성전자', '카카오', 'LG', '네이버'].map((company) => (
+        {companies.map((company, index) => (
           <button
-            key={company}
+            key={company + index} // company와 index를 합쳐서 고유 key 생성
             onClick={() => setSelectedCategory(company)}
             className={`px-4 py-2 rounded-md ${selectedCategory === company ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
           >

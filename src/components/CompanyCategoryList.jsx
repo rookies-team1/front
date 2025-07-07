@@ -26,18 +26,18 @@ export default function CompanyCategoryList() {
   }, []);
 
   if (isLoading) {
-    return <p>로딩 중...</p>;
+    return <p className="text-center">로딩 중...</p>;  // 로딩 상태일 때 메시지
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return <p className="text-center text-red-500">{error}</p>;  // 에러 메시지
   }
 
   return (
     <div className="mb-4 flex gap-2">
-      {companies.map((company) => (
+      {companies.map((company, index) => (
         <button
-          key={company}
+          key={index}
           onClick={() => setSelectedCategory(company)}
           className={`px-3 py-1 rounded border ${
             selectedCategory === company

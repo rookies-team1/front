@@ -14,6 +14,7 @@ export default function NewsDetail() {
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [summary, setSummary] = useState('');
+  const [error, setError] = useState(null); // 추가된 에러 상태
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,12 +24,17 @@ export default function NewsDetail() {
         setNewsTitle(title);
         setNewsDetail(detail);
       } catch (error) {
-        console.error('Error fetching news:', error);
+        setError("뉴스 데이터를 불러오는 데 문제가 발생했습니다.");  // 에러 처리
+        console.error("Error fetching news:", error);
       }
     };
 
     fetchData();
   }, [id]);
+
+  if (error) {
+    return <p>{error}</p>;  // 에러 메시지 출력
+  }
 
   if (!newsTitle || !newsDetail) {
     return <p>해당 뉴스가 존재하지 않습니다.</p>;

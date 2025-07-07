@@ -52,44 +52,58 @@ export default function NewsDetail() {
   const contentToUse = uploadedText || news.content; // 업로드된 텍스트가 있으면 그것을 사용, 없으면 뉴스 본문 사용
 
   const handleSummarize = () => {
+    // 뉴스 본문 또는 업로드된 텍스트로 요약 생성
     setSummary("📌 요약 결과:\n\n" + contentToUse.slice(0, 100) + "...");
   };
 
   const handleAnalyze = () => {
+    // 뉴스 본문 또는 업로드된 텍스트로 포트폴리오 분석 생성
     setPortfolio("💼 포트폴리오 분석 결과:\n\n" + contentToUse.slice(0, 100) + "...");
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <button onClick={() => navigate(-1)} style={{ marginBottom: 10 }}>
+    <div className="p-6 max-w-3xl mx-auto">
+      <button 
+        onClick={() => navigate(-1)} 
+        className="mb-4 text-blue-500 hover:underline"
+      >
         ← 뒤로가기
       </button>
 
-      <h2>{news.title}</h2>
-      <p><strong>요약:</strong> {news.summary}</p>
-      <p><strong>본문:</strong> {news.content}</p>
+      <h2 className="text-2xl font-bold">{news.title}</h2>
+      <p className="mt-2"><strong>요약:</strong> {news.summary}</p>
+      <p className="mt-2"><strong>본문:</strong> {news.content}</p>
 
-      <div style={{ marginTop: 20 }}>
-        <button onClick={handleSummarize} style={{ marginRight: 10 }}>
+      <div className="mt-4">
+        <button 
+          onClick={handleSummarize} 
+          className="px-4 py-2 bg-blue-500 text-white rounded-md mr-2"
+        >
           요약 보기
         </button>
-        <button onClick={handleAnalyze}>포트폴리오 분석</button>
+        <button 
+          onClick={handleAnalyze} 
+          className="px-4 py-2 bg-green-500 text-white rounded-md"
+        >
+          포트폴리오 분석
+        </button>
       </div>
 
       {summary && (
-        <div style={{ marginTop: 20, background: "#f9f9f9", padding: 10 }}>
+        <div className="mt-6 p-4 bg-gray-100 rounded-md">
           <strong>요약 결과</strong>
           <pre>{summary}</pre>
         </div>
       )}
 
       {portfolio && (
-        <div style={{ marginTop: 20, background: "#e6f4ff", padding: 10 }}>
+        <div className="mt-6 p-4 bg-blue-100 rounded-md">
           <strong>분석 결과</strong>
           <pre>{portfolio}</pre>
         </div>
       )}
 
+      {/* 파일 업로드 영역 */}
       <FileUploadArea onExtractedText={(text) => setUploadedText(text)} />
     </div>
   );

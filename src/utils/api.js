@@ -15,13 +15,20 @@ export const fetchNewsTitle = async (id) => {
 // 기업 목록 가져오기
 export const fetchCompanies = async () => {
   try {
-    const response = await axiosInstance.get('/news/companies'); // /news/companies API 호출
-    return response.data; // 기업 목록을 반환
+    const response = await axiosInstance.get('/news/companies');
+    // response.data.data가 배열 형태인지 확인하고 반환
+    if (response.data && Array.isArray(response.data.data)) {
+      return response.data.data; // data 안의 배열 반환
+    } else {
+      throw new Error('올바르지 않은 데이터 형식입니다.');
+    }
   } catch (error) {
     console.error('Error fetching companies:', error);
-    throw error; // 에러가 발생하면 다시 throw
+    throw error;
   }
 };
+
+
 
 // 뉴스 상세 조회
 export const fetchNewsDetail = async (id) => {
