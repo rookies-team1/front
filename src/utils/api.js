@@ -64,24 +64,32 @@ export const fetchNewsByCompany = async (company) => {
 };
 
 // 회원가입
-export const signUp = async (userData) => {
+export const signUp = async (formData) => {
   try {
-    const response = await axiosInstance.post('/auth/signup', userData);
-    return response.data;  // 성공적으로 데이터를 반환
+    const response = await axiosInstance.post('/auth/signup', formData);
+    return response.data;  // 서버 응답 데이터 반환
   } catch (error) {
-    console.error("Error during signup:", error);
-    throw new Error('회원가입에 실패했습니다. 다시 시도해주세요.');
+    // 중복된 이메일일 경우 처리
+    if (error.response?.status === 409) {
+      throw new Error(error.response?.data?.errorMessage || "회원가입에 실패했습니다.");
+    } else {
+      throw new Error(error.response?.data?.errorMessage || "회원가입에 실패했습니다.");
+    }
   }
 };
 
 // 로그인
-export const signIn = async (email, password) => {
+export const signIn = async (loginData) => {
   try {
-    const response = await axiosInstance.post('/auth/signin', { email, password });
-    return response.data;  // 로그인 성공 시 사용자 데이터와 토큰 반환
+    const response = await axiosInstance.post('/auth/signin', loginData);
+    return response.data;  // 서버 응답 데이터 반환 (accessToken 포함)
   } catch (error) {
-    console.error("Error during signin:", error);
-    throw new Error('로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.');
+    if (error.response) {
+      // 400 에러 등 처리
+      throw new Error(error.response?.data?.errorMessage || "로그인에 실패했습니다.");
+    } else {
+      throw new Error("네트워크 오류입니다.");
+    }
   }
 };
 

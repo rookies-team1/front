@@ -14,6 +14,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+
         // 기업 목록 가져오기
         const companyData = await fetchCompanies();
         setCompanies(companyData); // 기업 목록 상태 업데이트
@@ -55,17 +56,17 @@ export default function Home() {
     <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">🏢 기업 카테고리</h2>
       <div className="flex gap-3 mb-6">
-        {companies.map((company, index) => (
+        {companies.map((company) => (
           <button
-            key={company + index} // company와 index를 합쳐서 고유 key 생성
-            onClick={() => setSelectedCategory(company)}
+            key={company} // 회사 이름을 key로 사용
+            onClick={() => setSelectedCategory(company)} // 선택된 카테고리 업데이트
             className={`px-4 py-2 rounded-md ${selectedCategory === company ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
           >
             {company}
           </button>
         ))}
         <button
-          onClick={() => setSelectedCategory(null)}
+          onClick={() => setSelectedCategory(null)} // 전체 보기 버튼
           className={`px-4 py-2 rounded-md ${selectedCategory === null ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
         >
           전체 보기
@@ -79,7 +80,7 @@ export default function Home() {
         <ul className="space-y-4">
           {newsList.map((news) => (
             <li
-              key={news.id}
+              key={news.id} // 각 뉴스 항목에 고유한 key 추가
               className="max-w-2xl mx-auto p-4 border rounded-lg shadow-md hover:bg-gray-50 transition"
               onClick={() => navigate(`/news/${news.id}`)}
             >
