@@ -34,8 +34,10 @@ export default function Login() {
 
       navigate("/");  // 로그인 후 이동할 페이지 (홈 페이지)
     } catch (error) {
-      console.error('로그인 오류:', error.message);  // 오류 메시지 출력
-      setError(error.message);  // 에러 상태 업데이트
+      // API에서 반환한 errorMessage 처리
+      const errorMessage = error.response?.data?.errorMessage || error.message;
+      console.error('로그인 오류:', errorMessage);  // 응답에서 메시지 확인
+      setError(errorMessage);  // 에러 상태 업데이트
     }
   };
 
@@ -60,7 +62,7 @@ export default function Login() {
             required
             className="w-full p-2 border rounded"
           />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-sm">{error}</p>}  {/* 에러 메시지 출력 */}
           <button className="w-full bg-blue-600 text-white p-2 rounded">로그인</button>
         </form>
       </div>

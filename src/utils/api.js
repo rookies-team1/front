@@ -76,7 +76,8 @@ export const signIn = async (loginData) => {
     }
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response?.data?.message || "로그인에 실패했습니다.");
+      const errorMessage = error.response?.data?.errorMessage || "로그인에 실패했습니다.";
+      throw new Error(errorMessage);  // 서버에서 받은 에러 메시지 반환
     } else {
       throw new Error("네트워크 오류입니다.");
     }
