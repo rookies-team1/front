@@ -47,12 +47,14 @@ export default function FileUploadArea({ onExtractedText }) {
       const response = await uploadFiles(files);  // api.js의 uploadFiles 함수 호출
 
       // 서버에서 텍스트 데이터를 반환했다면
-      if (response.data && response.data.text) {
+      if (response && response.data && response.data.text) {
         onExtractedText(response.data.text);  // 텍스트 처리 후 부모 컴포넌트로 전달
+      } else {
+        setError("파일 업로드에 실패했습니다.");  // 파일 업로드가 실패한 경우
       }
 
     } catch (error) {
-      setError('파일 업로드에 실패했습니다.');
+      setError(error.message || '파일 업로드에 실패했습니다.');  // 서버 에러 메시지 처리
       console.error('파일 업로드 오류:', error);
     } finally {
       setIsLoading(false);

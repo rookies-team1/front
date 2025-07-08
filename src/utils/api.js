@@ -98,19 +98,19 @@ export const refreshToken = async () => {
 
 
 export const uploadFiles = async (files) => {
-  const formData = new FormData();
+  const formData = new FormData(); // FormData 객체 생성
 
   files.forEach((file) => {
-    formData.append('files', file);
+    formData.append('files', file); // 여러 파일을 FormData에 추가
   });
-
+  // formData.forEach((el)=>console.log(el))
   const token = localStorage.getItem('accessToken'); // 로컬 스토리지에서 토큰 가져오기
 
   try {
     const response = await axiosInstance.post('/file/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',  // 멀티파트 폼 데이터로 전송
-        'Authorization': `Bearer ${token}`,    // 토큰을 Authorization 헤더에 포함
+        'Authorization': `Bearer ${token}`,    // Authorization 헤더에 토큰 포함
       },
     });
 
