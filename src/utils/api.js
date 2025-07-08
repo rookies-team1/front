@@ -1,17 +1,5 @@
 import axiosInstance from './axiosInstance';
 
-// 뉴스 제목 조회
-export const fetchNewsTitle = async (id) => {
-  try {
-    const response = await axiosInstance.get(`/news/${id}/title`);
-    return response.data;  // 성공적으로 데이터를 반환
-  } catch (error) {
-    console.error("Error fetching news title:", error);
-    throw new Error('뉴스 제목을 불러오는 데 실패했습니다.');  // 사용자에게 적절한 에러 메시지 제공
-  }
-};
-
-
 // 기업 목록 가져오기
 export const fetchCompanies = async () => {
   try {
@@ -28,12 +16,10 @@ export const fetchCompanies = async () => {
   }
 };
 
-
-
 // 뉴스 상세 조회
 export const fetchNewsDetail = async (id) => {
   try {
-    const response = await axiosInstance.get(`/news/${id}/detail`);
+    const response = await axiosInstance.get(`/news/${id}/detail`);  // 여기서 /news/{id}/detail을 사용합니다.
     return response.data; // 성공적으로 데이터를 반환
   } catch (error) {
     console.error('Error fetching news detail:', error);
@@ -52,7 +38,7 @@ export const fetchNewsTitles = async () => {
   }
 };
 
-// 기업별 뉴스 조회 (optional)
+// 기업별 뉴스 조회
 export const fetchNewsByCompany = async (company) => {
   try {
     const response = await axiosInstance.get(`/news/${company}`); // 회사 이름을 URL 파라미터로 사용
@@ -83,27 +69,19 @@ export const signIn = async (loginData) => {
   try {
     const response = await axiosInstance.post('/auth/signin', loginData);
 
-    console.log('응답 데이터:', response.data); // 응답 데이터 확인
-
     if (response.data.success) {
       return response.data.data.accessToken; // accessToken 반환
     } else {
       throw new Error(response.data.message || "로그인에 실패했습니다.");
     }
-
   } catch (error) {
     if (error.response) {
-      console.error('서버 오류:', error.response?.data); // 오류 데이터 확인
       throw new Error(error.response?.data?.message || "로그인에 실패했습니다.");
     } else {
-      console.error('네트워크 오류:', error.message); // 네트워크 오류 처리
       throw new Error("네트워크 오류입니다.");
     }
   }
 };
-
-
-
 
 // 토큰 재발급 (선택적)
 export const refreshToken = async () => {
