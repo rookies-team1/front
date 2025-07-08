@@ -55,7 +55,7 @@ export const fetchNewsTitles = async () => {
 // 기업별 뉴스 조회 (optional)
 export const fetchNewsByCompany = async (company) => {
   try {
-    const response = await axiosInstance.get(`/news/companies?company=${company}`);
+    const response = await axiosInstance.get(`/news/${company}`); // 회사 이름을 URL 파라미터로 사용
     return response.data;  // 성공적으로 데이터를 반환
   } catch (error) {
     console.error("Error fetching news by company:", error);
