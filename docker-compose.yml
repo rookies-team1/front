@@ -2,18 +2,16 @@ version: '3.8'
 
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: hanmg412/prj3:fclient0.1
     container_name: react-client
     ports:
-      - "80:80"  
+      - "80:80"
     environment:
-      - VITE_API_BASE_URL=http://18.233.156.168:8080
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - appnet
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro  
 
 networks:
   appnet:
