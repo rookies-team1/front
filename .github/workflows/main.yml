@@ -39,19 +39,19 @@ jobs:
       - name: Image digest
         run: echo "Image pushed successfully to ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}"
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~
-            if [ ! -d "already-front" ]; then
-              git clone https://github.com/rookies-team1/front.git already-front
-            fi
-            cd already-front
-            git pull origin main
+      # - name: Deploy to EC2
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ec2-user
+      #     key: ${{ secrets.EC2_SSH_KEY }}
+      #     script: |
+      #       cd ~
+      #       if [ ! -d "already-front" ]; then
+      #         git clone https://github.com/rookies-team1/front.git already-front
+      #       fi
+      #       cd already-front
+      #       git pull origin main
 
-            docker-compose pull
-            docker-compose up -d
+      #       docker-compose pull
+      #       docker-compose up -d
