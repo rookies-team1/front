@@ -22,11 +22,12 @@ COPY . /app
 
 # 🟡 build 시 VITE_API_URL이 들어오도록 ARG 정의
 ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 # 빌드시 .env 대신 환경변수 직접 주입됨
-RUN echo "VITE_API_URL=$VITE_API_URL" > .env \
-  && npm run build
+# RUN echo "VITE_API_URL=$VITE_API_URL" > .env \
+#   && npm run build
+RUN npm run build
 # 두 번째 단계: Nginx 웹서버 단계
 # 최신 버전의 Nginx 공식 이미지를 베이스로 사용
 FROM nginx:latest
