@@ -20,10 +20,13 @@ RUN npm install
 # .dockerignore 파일이 있다면 해당 파일에 명시된 파일들은 제외됨
 COPY . /app
 
-# React 애플리케이션을 프로덕션용으로 빌드
-# 일반적으로 dist 또는 build 폴더에 최적화된 정적 파일들이 생성됨
-RUN npm run build
+# 🟡 build 시 VITE_API_URL이 들어오도록 ARG 정의
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 
+# 빌드시 .env 대신 환경변수 직접 주입됨
+RUN echo "VITE_API_URL=$VITE_API_URL" > .env \
+  && npm run build
 # 두 번째 단계: Nginx 웹서버 단계
 # 최신 버전의 Nginx 공식 이미지를 베이스로 사용
 FROM nginx:latest
