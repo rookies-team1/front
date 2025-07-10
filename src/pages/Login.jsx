@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useUserStore } from "../store/userStore";
 import { signIn } from "../utils/api";
-import { useForm } from "../hooks/useForm"; // ✅ 중복 제거용 훅
+import { useForm } from "../hooks/useForm";
+import { useUserStore } from "../store/userStore"; // Zustand 사용자/토큰 상태 사용
 
 export default function Login() {
   const { form, handleChange, error, setError } = useForm({
@@ -10,7 +10,7 @@ export default function Login() {
   });
 
   const navigate = useNavigate();
-  const { setUser } = useUserStore();
+  const { setUser, setToken } = useUserStore(); // 전역 상태 설정 함수
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,15 +21,12 @@ export default function Login() {
         password: form.password,
       });
 
-      console.log("로그인 성공, 받은 토큰:", token);
-      localStorage.setItem("accessToken", token);
-
-      const user = {
+      // 상태로 저장
+      setToken(token);
+      setUser({
         email: form.email,
         name: form.email.split("@")[0],
-      };
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
+      });
 
       navigate("/");
     } catch (error) {
