@@ -1,24 +1,28 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useUserStore } from "../store/userStore";
-import { useEffect } from "react";
+// import { useUserStore } from "../store/userStore";
+import { useAuth } from "../hooks/useAuth";
+
 
 export default function Navbar() {
-  const { user, setUser, clearUser } = useUserStore();
+  // const { user, setUser, clearUser } = useUserStore();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // 로그인 상태를 로컬 스토리지에서 초기화
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser); // 로컬 스토리지에서 사용자 정보를 불러오기
-    }
-  }, [setUser]);
+  // // 로그인 상태를 로컬 스토리지에서 초기화
+  // useEffect(() => {
+  //   const storedUser = JSON.parse(localStorage.getItem("user"));
+  //   if (storedUser) {
+  //     setUser(storedUser); // 로컬 스토리지에서 사용자 정보를 불러오기
+  //   }
+  // }, [setUser]);
 
   const handleLogout = () => {
-    clearUser(); // Zustand로 로그인 정보 초기화
-    localStorage.removeItem("user"); // 로컬 스토리지에서 사용자 정보 삭제
-    localStorage.removeItem("accessToken"); // 토큰도 삭제
-    navigate("/login"); // 로그인 페이지로 리디렉션
+    // clearUser(); // Zustand로 로그인 정보 초기화
+    // localStorage.removeItem("user"); // 로컬 스토리지에서 사용자 정보 삭제
+    // localStorage.removeItem("accessToken"); // 토큰도 삭제
+    // navigate("/login"); // 로그인 페이지로 리디렉션
+    logout();
+    navigate("/login");
   };
 
   return (

@@ -1,10 +1,12 @@
 import { useBookmarkStore } from "../store/bookmarkStore";
-import { useUserStore } from "../store/userStore";
+// import { useUserStore } from "../store/userStore";
+import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function Bookmarks() {
   const { bookmarks } = useBookmarkStore();
-  const { user } = useUserStore();
+  // const { user } = useUserStore();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // 로그인 안 된 경우 접근 제한
