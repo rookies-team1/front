@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { fetchNewsDetail, fetchNewsSummary } from '../utils/api'; // 요약 API 포함
+import { fetchNewsDetail, fetchNewsSummary } from '../utils/api';
 import FileUploadArea from '../components/FileUploadArea';
 import ViewToggle from '../components/ViewToggle';
 import ChatBox from '../components/ChatBox';
@@ -71,12 +71,25 @@ export default function NewsDetail() {
     setChatInput('');
   };
 
+  // 문장 N개씩 묶어서 의사 문단 만들기
+  const groupSentences = (sentences, n = 3) => {
+    const groups = [];
+    for (let i = 0; i < sentences.length; i += n) {
+      groups.push(sentences.slice(i, i + n).join(' '));
+    }
+    return groups;
+  };
+
+  const textToDisplay = viewMode === 'full' ? newsDetail : summary || '요약된 내용이 없습니다.';
+  const sentenceList = textToDisplay.split(/(?<=\.)\s+/); // 마침표 기준 문장 분리
+  const paragraphList = groupSentences(sentenceList, 3); // 3문장씩 묶기
+
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="max-w-screen-lg mx-auto p-6 space-y-6">
-      {/* 뒤로가기 */}
-      <div className="mb-6">
+    <div className="w-full max-w-screen-xl mx-auto px-6 py-10 space-y-10">
+      {/* 뒤로가기 버튼 */}
+      <div>
         <button
           onClick={() => navigate(-1)}
           className="text-sm px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all"
@@ -86,7 +99,7 @@ export default function NewsDetail() {
       </div>
 
       {/* 뉴스 제목 */}
-      <h2 className="text-3xl font-semibold text-gray-800">{newsTitle}</h2>
+      <h2 className="text-4xl font-bold text-gray-900">{newsTitle}</h2>
 
       {/* 보기 모드 선택 */}
       <ViewToggle
@@ -96,12 +109,16 @@ export default function NewsDetail() {
       />
 
       {/* 뉴스 본문 or 요약 */}
-      <div className="bg-white border p-6 rounded-lg shadow-lg h-auto max-h-[80vh] overflow-y-auto">
-        {viewMode === 'full' ? (
-          <p className="text-sm text-gray-600 break-words">{newsDetail}</p>
-        ) : (
-          <p className="text-sm text-gray-600 break-words">{summary || '요약된 내용이 없습니다.'}</p>
-        )}
+      <div className="w-full bg-white border p-10 rounded-xl shadow-xl max-h-[80vh] overflow-y-auto">
+        {paragraphList.map((para, idx) => (
+          <p
+            key={idx}
+            className="text-lg md:text-xl leading-relaxed text-gray-800 font-serif mb-6"
+            style={{ textIndent: '2em', whiteSpace: 'pre-wrap' }}
+          >
+            {para.trim()}
+          </p>
+        ))}
       </div>
 
       {/* 파일 업로드 */}

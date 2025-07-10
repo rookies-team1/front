@@ -53,7 +53,7 @@ export default function NewsList({
   return (
     <ul className="space-y-8">
       {currentNews.map((news) => {
-        console.log(news);
+        // console.log(news);
         const isBookmarked = bookmarks.some((b) => b.id === news.id);
 
         return (
