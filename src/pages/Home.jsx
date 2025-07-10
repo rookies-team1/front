@@ -60,7 +60,6 @@ export default function Home() {
   const indexOfFirstNews = indexOfLastNews - newsPerPage;
   const currentNews = newsList.slice(indexOfFirstNews, indexOfLastNews);
 
-  if (isLoading) return <p>로딩 중...</p>;
   if (error) return <p>{error}</p>;
 
   return (
@@ -77,11 +76,13 @@ export default function Home() {
         <p className="text-gray-600">뉴스 목록이 없습니다.</p>
       ) : (
         <NewsList
-          newsList={currentNews}
           user={user}
           bookmarks={bookmarks}
           toggleBookmark={toggleBookmark}
           onClickNews={handleNewsClick}
+          selectedCategory={selectedCategory}
+          currentPage={currentPage}
+          newsPerPage={newsPerPage}
         />
       )}
 

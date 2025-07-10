@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { fetchNewsDetail } from '../utils/api';
+import { fetchNewsDetail, fetchNewsSummary } from '../utils/api'; // 요약 API 포함
 import FileUploadArea from '../components/FileUploadArea';
 import ViewToggle from '../components/ViewToggle';
 import ChatBox from '../components/ChatBox';
@@ -18,12 +18,11 @@ export default function NewsDetail() {
   const [summary, setSummary] = useState('');
   const [error, setError] = useState(null);
 
+  // 뉴스 데이터 불러오기
   useEffect(() => {
     const fetchData = async () => {
       try {
         const newsData = await fetchNewsDetail(id);
-        console.log("Received news data:", newsData);
-
         if (newsData && newsData.data) {
           setNewsTitle(newsData.data.title);
           setNewsDetail(newsData.data.contents);
@@ -39,6 +38,26 @@ export default function NewsDetail() {
     fetchData();
   }, [id]);
 
+  // 뉴스 요약하기
+  const handleSummarize = async () => {
+    try {
+      setSummary("요약 중입니다...");
+      const data = await fetchNewsSummary(id);
+
+      if (data.error) {
+        setSummary("❌ 요약 실패: " + data.error_content);
+      } else {
+        setSummary(data.summary);
+      }
+
+      setViewMode('summary');
+    } catch (err) {
+      console.error("요약 오류:", err);
+      setSummary("⚠️ 요약 도중 오류가 발생했습니다.");
+    }
+  };
+
+  // AI 챗봇 질문 제출
   const handleChatSubmit = () => {
     if (!chatInput.trim()) return;
 
@@ -52,14 +71,7 @@ export default function NewsDetail() {
     setChatInput('');
   };
 
-  const handleSummarize = () => {
-    const result = `${newsTitle}\n${newsDetail}\n(※ 실제로는 LangChain 요약 결과가 들어갑니다)`;
-    setSummary(result);
-    setViewMode('summary');
-  };
-
   if (error) return <p className="text-red-500">{error}</p>;
-  // if (!newsTitle || !newsDetail) return <p>해당 뉴스가 존재하지 않습니다.</p>;
 
   return (
     <div className="max-w-screen-lg mx-auto p-6 space-y-6">
@@ -83,7 +95,7 @@ export default function NewsDetail() {
         onSummaryView={handleSummarize}
       />
 
-      {/* 본문 or 요약 */}
+      {/* 뉴스 본문 or 요약 */}
       <div className="bg-white border p-6 rounded-lg shadow-lg h-auto max-h-[80vh] overflow-y-auto">
         {viewMode === 'full' ? (
           <p className="text-sm text-gray-600 break-words">{newsDetail}</p>

@@ -132,3 +132,10 @@ export const verifyEmailCode = async ({ email, code }) => {
   const response = await axiosInstance.post('/auth/email/verify', { email, code });
   return response.data;
 };
+
+
+//뉴스요약
+export const fetchNewsSummary = async (newsId) => {
+  const response = await axiosInstance.post(`/api/chat/summarize/${newsId}`);
+  return response.data;
+};
