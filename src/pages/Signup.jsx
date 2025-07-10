@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signUp } from "../utils/api";
+import { signUp, requestEmailVerification, verifyEmailCode } from "../utils/api";
 import { useForm } from "../hooks/useForm";
 import { validateEmail, validatePassword } from "../utils/validation";
 
@@ -14,31 +14,36 @@ export default function Signup() {
   const [emailValid, setEmailValid] = useState(true);
   const [emailVerified, setEmailVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
-  const [generatedCode, setGeneratedCode] = useState("");
   const navigate = useNavigate();
 
-  const CODE_LENGTH = 4;
-
-  // 이메일 인증 코드 발송
-  const handleEmailValidation = () => {
+  // 이메일 인증 요청
+  const handleEmailValidation = async () => {
     if (!validateEmail(form.email)) {
       setEmailValid(false);
       return;
     }
 
-    setEmailValid(true);
-    const code = Math.floor(10 ** (CODE_LENGTH - 1) + Math.random() * 9 * 10 ** (CODE_LENGTH - 1));
-    setGeneratedCode(code.toString());
-    alert(`인증 코드: ${code}`);
+    try {
+      setEmailValid(true);
+      const res = await requestEmailVerification(form.email);
+      alert(res.data || "인증 코드가 전송되었습니다.");
+    } catch (err) {
+      alert("이메일 인증 요청 실패: " + (err.response?.data?.message || err.message));
+    }
   };
 
-  // 인증 코드 검증
-  const handleVerifyCode = () => {
-    if (verificationCode === generatedCode) {
+  // 인증 코드 확인
+  const handleVerifyCode = async () => {
+    try {
+      const res = await verifyEmailCode({
+        email: form.email,
+        code: verificationCode,
+      });
+
+      alert(res.data || "이메일 인증이 완료되었습니다.");
       setEmailVerified(true);
-      alert("이메일 인증이 완료되었습니다.");
-    } else {
-      alert("잘못된 인증 코드입니다.");
+    } catch (err) {
+      alert("인증 실패: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -74,9 +79,10 @@ export default function Signup() {
         setError(response.errorMessage || "회원가입 실패");
       }
     } catch (error) {
-      const msg = error.message === "중복된 이메일입니다."
-        ? "중복된 이메일입니다. 다른 이메일을 사용해 주세요."
-        : error.message || "회원가입에 실패했습니다.";
+      const msg =
+        error.message === "중복된 이메일입니다."
+          ? "중복된 이메일입니다. 다른 이메일을 사용해 주세요."
+          : error.message || "회원가입에 실패했습니다.";
       setError(msg);
     }
   };

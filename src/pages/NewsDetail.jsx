@@ -59,7 +59,7 @@ export default function NewsDetail() {
   };
 
   if (error) return <p className="text-red-500">{error}</p>;
-  if (!newsTitle || !newsDetail) return <p>해당 뉴스가 존재하지 않습니다.</p>;
+  // if (!newsTitle || !newsDetail) return <p>해당 뉴스가 존재하지 않습니다.</p>;
 
   return (
     <div className="max-w-screen-lg mx-auto p-6 space-y-6">

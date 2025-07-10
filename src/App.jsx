@@ -9,12 +9,12 @@ import Navbar from "./components/Navbar";
 function AppContent() {
   const location = useLocation();
 
-  // 로그인/회원가입 페이지에서는 Navbar 생략
-  const hideNavbar = ["/login", "/signup"].includes(location.pathname);
+  // // 로그인/회원가입 페이지에서는 Navbar 생략
+  // const hideNavbar = ["/login", "/signup"].includes(location.pathname);
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/news/:id" element={<NewsDetail />} />

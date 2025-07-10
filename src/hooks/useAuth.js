@@ -2,7 +2,7 @@ import { useUserStore } from "../store/userStore";
 import { useEffect } from "react";
 
 export const useAuth = () => {
-  const { user, setUser, clearUser } = useUserStore();
+  const { user, setUser, clearAuth } = useUserStore();
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -12,7 +12,7 @@ export const useAuth = () => {
   }, [setUser]);
 
   const logout = () => {
-    clearUser();
+    clearAuth();
     localStorage.removeItem("user");
     localStorage.removeItem("accessToken");
   };

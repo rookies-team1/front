@@ -120,3 +120,15 @@ export const uploadFiles = async (files) => {
     throw new Error('파일 업로드에 실패했습니다.');
   }
 };
+
+
+export const requestEmailVerification = async (email) => {
+  const response = await axiosInstance.post('/auth/email', { email });
+  return response.data;
+};
+
+
+export const verifyEmailCode = async ({ email, code }) => {
+  const response = await axiosInstance.post('/auth/email/verify', { email, code });
+  return response.data;
+};
