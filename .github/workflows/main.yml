@@ -9,7 +9,7 @@ on:
 
 env:
   DOCKER_IMAGE: prj3
-  DOCKER_TAG: fclient0.1
+  DOCKER_TAG: fclient0.3
 
 jobs:
   Docker:
