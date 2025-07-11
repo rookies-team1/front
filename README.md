@@ -66,7 +66,7 @@ MYPRJ3_VER2/
 ## 3. 환경 설정
 ```env
 # .env
-VITE_API_URL=http://18.233.156.168:8080
+VITE_API_URL=http://배포서버주소:8080
 ```
 
 
