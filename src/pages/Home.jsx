@@ -63,7 +63,7 @@ export default function Home() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="p-6 px-12 max-w-7xl mx-auto">
+    <div className="p-6 px-4 md:px-12 max-w-7xl mx-auto">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">🏢 기업 카테고리</h2>
       <CategoryFilter
         companies={companies}
@@ -72,7 +72,9 @@ export default function Home() {
       />
 
       <h3 className="text-xl font-semibold text-gray-800 mb-4">📰 뉴스 목록</h3>
-      {currentNews.length === 0 ? (
+      {isLoading ? (
+        <p className="text-gray-500">로딩 중...</p>
+      ) : currentNews.length === 0 ? (
         <p className="text-gray-600">뉴스 목록이 없습니다.</p>
       ) : (
         <NewsList

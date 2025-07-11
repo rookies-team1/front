@@ -9,9 +9,6 @@ import Navbar from "./components/Navbar";
 function AppContent() {
   const location = useLocation();
 
-  // // 로그인/회원가입 페이지에서는 Navbar 생략
-  // const hideNavbar = ["/login", "/signup"].includes(location.pathname);
-
   return (
     <>
       <Navbar />
@@ -29,7 +26,9 @@ function AppContent() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <div className="min-h-screen bg-slate-50 text-gray-800 font-sans">
+        <AppContent />
+      </div>
     </BrowserRouter>
   );
 }

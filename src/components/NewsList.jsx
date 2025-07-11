@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import {
-  fetchCompanies,
   fetchNewsByCompany,
   fetchNewsTitles,
 } from "../utils/api";
+import PublishDate from "./PublishDate";
+import toast from "react-hot-toast";
 
 export default function NewsList({
   user,
@@ -42,7 +43,6 @@ export default function NewsList({
     fetchData();
   }, [selectedCategory]);
 
-  // 페이지 처리
   const indexOfLast = currentPage * newsPerPage;
   const indexOfFirst = indexOfLast - newsPerPage;
   const currentNews = newsList.slice(indexOfFirst, indexOfLast);
@@ -53,7 +53,6 @@ export default function NewsList({
   return (
     <ul className="space-y-8">
       {currentNews.map((news) => {
-        // console.log(news);
         const isBookmarked = bookmarks.some((b) => b.id === news.id);
 
         return (
@@ -66,34 +65,29 @@ export default function NewsList({
               {news.title}
             </h4>
 
-            {/* 출간 날짜 */}
-            <p className="text-xs text-gray-500 mt-1">
-              {news.publishDate
-                ? new Date(news.publishDate.replace(/-/g, '/')).toLocaleDateString("ko-KR", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-                : "출간일 없음"}
-            </p>
+            <PublishDate date={news.publishDate} />
 
-            {/* 본문 일부 (옵션) */}
             {news.contents && (
               <p className="text-sm text-gray-600 mt-2 line-clamp-2">
                 {news.contents}
               </p>
             )}
 
-            {/* 북마크 버튼 */}
             {user && (
               <button
-                className={`absolute top-4 right-4 text-2xl transition-transform duration-150 ${isBookmarked
+                className={`absolute top-4 right-4 text-2xl transition-transform duration-150 ${
+                  isBookmarked
                     ? "text-yellow-400 hover:scale-110"
                     : "text-gray-400 hover:text-yellow-400 hover:scale-110"
-                  }`}
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleBookmark(news);
+                  if (isBookmarked) {
+                    toast.error("북마크에서 제거되었습니다.");
+                  } else {
+                    toast.success("북마크에 추가되었습니다.");
+                  }
                 }}
               >
                 {isBookmarked ? "★" : "☆"}

@@ -2,7 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 공통 버튼 스타일 (선택적으로 사용) */
+/* 전체 배경 - 깔끔한 격자 패턴 느낌 */
+body {
+  @apply bg-gray-100 text-gray-900;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  font-family: 'Pretendard Variable', sans-serif;
+}
+
+/* 공통 버튼 */
 .btn {
-  @apply px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600;
+  @apply px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 rounded bg-gray-300 text-gray-800 hover:bg-gray-400;
+}
+
+/* 카드형 뉴스 박스 */
+.news-card {
+  @apply bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300;
+}
+
+/* 뉴스 제목 */
+.news-title {
+  @apply text-xl font-semibold mb-2 hover:text-blue-600 cursor-pointer;
+}
+
+/* 뉴스 날짜 */
+.news-date {
+  @apply text-sm text-gray-500 mb-4;
 }
