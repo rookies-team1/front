@@ -7,7 +7,7 @@ import Bookmark from "./pages/Bookmark";
 import Navbar from "./components/Navbar";
 
 function AppContent() {
-  const location = useLocation();
+  // const location = useLocation();
 
   return (
     <>
