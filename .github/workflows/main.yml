@@ -54,4 +54,5 @@ jobs:
             git pull origin main
 
             docker-compose pull
+            docker-compose down
             docker-compose up -d
