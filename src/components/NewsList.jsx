@@ -1,8 +1,3 @@
-import { useState, useEffect } from "react";
-import {
-  fetchNewsByCompany,
-  fetchNewsTitles,
-} from "../utils/api";
 import PublishDate from "./PublishDate";
 import toast from "react-hot-toast";
 
@@ -11,48 +6,11 @@ export default function NewsList({
   bookmarks,
   toggleBookmark,
   onClickNews,
-  selectedCategory,
-  currentPage,
-  newsPerPage,
+  newsList,
 }) {
-  const [newsList, setNewsList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-
-        const newsData = selectedCategory
-          ? await fetchNewsByCompany(selectedCategory)
-          : await fetchNewsTitles();
-
-        if (newsData?.data && Array.isArray(newsData.data)) {
-          setNewsList(newsData.data);
-        } else {
-          setError("뉴스 데이터를 불러오는 데 문제가 발생했습니다.");
-        }
-      } catch {
-        setError("뉴스 데이터를 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [selectedCategory]);
-
-  const indexOfLast = currentPage * newsPerPage;
-  const indexOfFirst = indexOfLast - newsPerPage;
-  const currentNews = newsList.slice(indexOfFirst, indexOfLast);
-
-  if (error)
-    return <p className="text-red-500 text-center mt-4">{error}</p>;
-
   return (
     <ul className="space-y-8">
-      {currentNews.map((news) => {
+      {newsList.map((news) => {
         const isBookmarked = bookmarks.some((b) => b.id === news.id);
 
         return (

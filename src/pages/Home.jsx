@@ -7,6 +7,7 @@ import { useBookmarkStore } from '../store/bookmarkStore';
 import CategoryFilter from '../components/CategoryFilter';
 import NewsList from '../components/NewsList';
 import Pagination from '../components/Pagination';
+import LoadingSpinner from '../components/LoadingSpinner'; // ✅ 추가
 
 export default function Home() {
   const navigate = useNavigate();
@@ -60,8 +61,6 @@ export default function Home() {
   const indexOfFirstNews = indexOfLastNews - newsPerPage;
   const currentNews = newsList.slice(indexOfFirstNews, indexOfLastNews);
 
-  if (error) return <p>{error}</p>;
-
   return (
     <div className="p-6 px-4 md:px-12 max-w-7xl mx-auto">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">🏢 기업 카테고리</h2>
@@ -72,28 +71,30 @@ export default function Home() {
       />
 
       <h3 className="text-xl font-semibold text-gray-800 mb-4">📰 뉴스 목록</h3>
+
+      {error && <p className="text-red-500">{error}</p>}
+
       {isLoading ? (
-        <p className="text-gray-500">로딩 중...</p>
+        <LoadingSpinner text="뉴스 불러오는 중..." />
       ) : currentNews.length === 0 ? (
         <p className="text-gray-600">뉴스 목록이 없습니다.</p>
       ) : (
-        <NewsList
-          user={user}
-          bookmarks={bookmarks}
-          toggleBookmark={toggleBookmark}
-          onClickNews={handleNewsClick}
-          selectedCategory={selectedCategory}
-          currentPage={currentPage}
-          newsPerPage={newsPerPage}
-        />
+        <>
+          <NewsList
+            user={user}
+            bookmarks={bookmarks}
+            toggleBookmark={toggleBookmark}
+            onClickNews={handleNewsClick}
+            newsList={currentNews}
+          />
+          <Pagination
+            total={newsList.length}
+            currentPage={currentPage}
+            perPage={newsPerPage}
+            onPageChange={setCurrentPage}
+          />
+        </>
       )}
-
-      <Pagination
-        total={newsList.length}
-        currentPage={currentPage}
-        perPage={newsPerPage}
-        onPageChange={setCurrentPage}
-      />
     </div>
   );
 }

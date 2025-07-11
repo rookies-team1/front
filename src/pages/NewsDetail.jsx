@@ -4,6 +4,7 @@ import { fetchNewsDetail, fetchNewsSummary } from '../utils/api';
 import FileUploadArea from '../components/FileUploadArea';
 import ViewToggle from '../components/ViewToggle';
 import ChatBox from '../components/ChatBox';
+import LoadingSpinner from '../components/LoadingSpinner'; // ✅ 추가
 
 export default function NewsDetail() {
   const { id } = useParams();
@@ -17,11 +18,12 @@ export default function NewsDetail() {
   const [chatHistory, setChatHistory] = useState([]);
   const [summary, setSummary] = useState('');
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 뉴스 데이터 불러오기
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const newsData = await fetchNewsDetail(id);
         if (newsData && newsData.data) {
           setNewsTitle(newsData.data.title);
@@ -32,24 +34,23 @@ export default function NewsDetail() {
       } catch (error) {
         setError("뉴스 데이터를 불러오는 데 문제가 발생했습니다.");
         console.error("Error fetching news:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, [id]);
 
-  // 뉴스 요약하기
   const handleSummarize = async () => {
     try {
       setSummary("요약 중입니다...");
       const data = await fetchNewsSummary(id);
-
       if (data.error) {
         setSummary("❌ 요약 실패: " + data.error_content);
       } else {
         setSummary(data.summary);
       }
-
       setViewMode('summary');
     } catch (err) {
       console.error("요약 오류:", err);
@@ -57,7 +58,6 @@ export default function NewsDetail() {
     }
   };
 
-  // AI 챗봇 질문 제출
   const handleChatSubmit = () => {
     if (!chatInput.trim()) return;
 
@@ -71,7 +71,6 @@ export default function NewsDetail() {
     setChatInput('');
   };
 
-  // 문장 N개씩 묶어서 의사 문단 만들기
   const groupSentences = (sentences, n = 3) => {
     const groups = [];
     for (let i = 0; i < sentences.length; i += n) {
@@ -81,14 +80,14 @@ export default function NewsDetail() {
   };
 
   const textToDisplay = viewMode === 'full' ? newsDetail : summary || '요약된 내용이 없습니다.';
-  const sentenceList = textToDisplay.split(/(?<=\.)\s+/); // 마침표 기준 문장 분리
-  const paragraphList = groupSentences(sentenceList, 3); // 3문장씩 묶기
+  const sentenceList = textToDisplay.split(/(?<=\.)\s+/);
+  const paragraphList = groupSentences(sentenceList, 3);
 
   if (error) return <p className="text-red-500">{error}</p>;
+  if (isLoading) return <LoadingSpinner text="뉴스를 불러오는 중입니다..." />;
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-6 py-10 space-y-10">
-      {/* 뒤로가기 버튼 */}
       <div>
         <button
           onClick={() => navigate(-1)}
@@ -98,17 +97,14 @@ export default function NewsDetail() {
         </button>
       </div>
 
-      {/* 뉴스 제목 */}
       <h2 className="text-4xl font-bold text-gray-900">{newsTitle}</h2>
 
-      {/* 보기 모드 선택 */}
       <ViewToggle
         viewMode={viewMode}
         onFullView={() => setViewMode('full')}
         onSummaryView={handleSummarize}
       />
 
-      {/* 뉴스 본문 or 요약 */}
       <div className="w-full bg-white border p-10 rounded-xl shadow-xl max-h-[80vh] overflow-y-auto">
         {paragraphList.map((para, idx) => (
           <p
@@ -121,10 +117,8 @@ export default function NewsDetail() {
         ))}
       </div>
 
-      {/* 파일 업로드 */}
       <FileUploadArea onExtractedText={(text) => setUploadedText(text)} />
 
-      {/* AI 챗봇 */}
       <ChatBox
         chatInput={chatInput}
         setChatInput={setChatInput}

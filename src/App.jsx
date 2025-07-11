@@ -26,9 +26,10 @@ function AppContent() {
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-50 text-gray-800 font-sans">
+      <div className="min-h-screen text-gray-800 font-sans">
         <AppContent />
       </div>
     </BrowserRouter>
   );
 }
+
