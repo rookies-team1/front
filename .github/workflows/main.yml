@@ -1,3 +1,9 @@
+# DOCKER_TAG: latest	이전 이미지 태그 충돌 없이 항상 최신으로 덮어씀
+# no-cache: true	Dockerfile 빌드시 캐시 없이 매번 새로 생성
+# -force-recreate	기존 컨테이너를 확실히 새 이미지로 교체
+# ITE_API_URL 전달	프론트가 올바른 백엔드 주소로 배포됨
+
+
 name: Build and Push Docker Image
 
 on:
@@ -9,7 +15,8 @@ on:
 
 env:
   DOCKER_IMAGE: prj3
-  DOCKER_TAG: fclient0.3
+  #DOCKER_TAG: latest  # 최신 태그로 항상 덮어씌움
+  DOCKER_TAG: fclient0.4
 
 jobs:
   Docker:
@@ -32,6 +39,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          no-cache: true  # ✅ 캐시 없이 항상 새 빌드
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_BASE_URL }}

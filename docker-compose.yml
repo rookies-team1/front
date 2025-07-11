@@ -2,15 +2,17 @@ version: '3.8'
 
 services:
   frontend:
-    image: hanmg412/prj3:fclient0.3
+    image: hanmg412/prj3:0.4
     container_name: react-client
     ports:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: always
 
 networks:
   default:
     name: shared-network
     external: true
+    
 
