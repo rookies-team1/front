@@ -1,10 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { fetchNewsDetail, fetchNewsSummary } from '../utils/api';
+import { useSummaryStore } from '../store/summaryStore';
 import FileUploadArea from '../components/FileUploadArea';
 import ViewToggle from '../components/ViewToggle';
 import ChatBox from '../components/ChatBox';
-import LoadingSpinner from '../components/LoadingSpinner'; // ✅ 추가
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function NewsDetail() {
   const { id } = useParams();
@@ -16,24 +17,38 @@ export default function NewsDetail() {
   const [uploadedText, setUploadedText] = useState('');
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
-  const [summary, setSummary] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const summaryMap = useSummaryStore((state) => state.summaryMap);
+  const summary = summaryMap[id];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+
         const newsData = await fetchNewsDetail(id);
-        if (newsData && newsData.data) {
+        if (newsData?.data) {
           setNewsTitle(newsData.data.title);
           setNewsDetail(newsData.data.contents);
         } else {
-          setError("뉴스 데이터가 잘못되었습니다.");
+          setError('뉴스 데이터가 잘못되었습니다.');
+          return;
+        }
+
+        const { hasSummary, setSummary } = useSummaryStore.getState();
+        if (!hasSummary(id)) {
+          const summaryData = await fetchNewsSummary(id);
+          if (summaryData.error) {
+            setSummary(id, '❌ 요약 실패: ' + summaryData.error_content);
+          } else {
+            setSummary(id, summaryData.summary);
+          }
         }
       } catch (error) {
-        setError("뉴스 데이터를 불러오는 데 문제가 발생했습니다.");
-        console.error("Error fetching news:", error);
+        console.error('데이터 요청 오류:', error);
+        setError('뉴스 또는 요약 데이터를 불러오는 데 문제가 발생했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -42,31 +57,13 @@ export default function NewsDetail() {
     fetchData();
   }, [id]);
 
-  const handleSummarize = async () => {
-    try {
-      setSummary("요약 중입니다...");
-      const data = await fetchNewsSummary(id);
-      if (data.error) {
-        setSummary("❌ 요약 실패: " + data.error_content);
-      } else {
-        setSummary(data.summary);
-      }
-      setViewMode('summary');
-    } catch (err) {
-      console.error("요약 오류:", err);
-      setSummary("⚠️ 요약 도중 오류가 발생했습니다.");
-    }
-  };
-
   const handleChatSubmit = () => {
     if (!chatInput.trim()) return;
-
     const userMsg = { role: 'user', content: chatInput };
     const aiMsg = {
       role: 'ai',
       content: `📡 AI 응답 (예시): "${uploadedText.slice(0, 100)}..."`,
     };
-
     setChatHistory((prev) => [...prev, userMsg, aiMsg]);
     setChatInput('');
   };
@@ -79,13 +76,19 @@ export default function NewsDetail() {
     return groups;
   };
 
-  const textToDisplay = viewMode === 'full' ? newsDetail : summary || '요약된 내용이 없습니다.';
+  const textToDisplay =
+    viewMode === 'full' ? newsDetail : summary || '요약된 내용이 없습니다.';
   const sentenceList = textToDisplay.split(/(?<=\.)\s+/);
   const paragraphList = groupSentences(sentenceList, 3);
 
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (isLoading) return <LoadingSpinner text="뉴스를 불러오는 중입니다..." />;
-
+  if (error)
+    return <p className="text-red-500 font-semibold">{error}</p>;
+  if (isLoading)
+  return (
+    <div className="flex items-center justify-center min-h-screen ">
+      <LoadingSpinner text="뉴스 및 요약을 불러오는 중입니다..."/>
+    </div>
+  );
   return (
     <div className="w-full max-w-screen-xl mx-auto px-6 py-10 space-y-10">
       <div>
@@ -102,7 +105,7 @@ export default function NewsDetail() {
       <ViewToggle
         viewMode={viewMode}
         onFullView={() => setViewMode('full')}
-        onSummaryView={handleSummarize}
+        onSummaryView={() => setViewMode('summary')}
       />
 
       <div className="w-full bg-white border p-10 rounded-xl shadow-xl max-h-[80vh] overflow-y-auto">

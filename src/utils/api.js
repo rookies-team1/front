@@ -134,8 +134,33 @@ export const verifyEmailCode = async ({ email, code }) => {
 };
 
 
-//뉴스요약
+// 뉴스 요약 API 요청
 export const fetchNewsSummary = async (newsId) => {
-  const response = await axiosInstance.post(`/api/chat/summarize/${newsId}`);
-  return response.data;
+  try {
+    const response = await axiosInstance.post(`/api/chat/summarize/${newsId}`);
+
+    const result = response.data;
+
+    // 응답 구조에 맞춰 정리
+    if (result?.success && result?.data) {
+      return {
+        summary: result.data.summary || '',
+        error: result.data.error || false,
+        error_content: result.data.error_content || '',
+      };
+    } else {
+      return {
+        summary: '',
+        error: true,
+        error_content: result?.message || '요약 실패: 서버 응답이 잘못되었습니다.',
+      };
+    }
+  } catch (error) {
+    console.error("요약 API 호출 실패:", error);
+    return {
+      summary: '',
+      error: true,
+      error_content: error.message || '요약 요청 중 예외가 발생했습니다.',
+    };
+  }
 };
