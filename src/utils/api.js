@@ -167,20 +167,21 @@ export const fetchNewsSummary = async (newsId) => {
 
 
 // AI 응답 요청
+// AI 응답 요청
 export const fetchChatResponse = async ({ newsId, question, file }) => {
   const token = localStorage.getItem('accessToken'); // ✅ 토큰 가져오기
 
   const formData = new FormData();
   formData.append('newsId', newsId);
   formData.append('question', question);
-  if (file) formData.append('file', file); // ✅ 선택적으로 파일도 추가
+  if (file) formData.append('file', file); // ✅ 파일 선택 시 추가
 
   try {
     const response = await axiosInstance.post('/api/chat/ask', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}` // ✅ 필수
-      }
+        'Authorization': `Bearer ${token}`, // ✅ 필수 인증
+      },
     });
 
     if (response.data.success) {

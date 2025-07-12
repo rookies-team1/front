@@ -15,7 +15,7 @@ export default function NewsDetail() {
   const [newsDetail, setNewsDetail] = useState('');
   const [viewMode, setViewMode] = useState('full');
   const [uploadedText, setUploadedText] = useState('');
-  const [uploadedFile, setUploadedFile] = useState(null); // ✅ 파일 자체 상태 추가
+  const [uploadedFile, setUploadedFile] = useState(null); // ✅ 파일 상태
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
@@ -74,7 +74,10 @@ export default function NewsDetail() {
 
       setChatHistory((prev) => [...prev, { role: 'ai', content: aiMsg }]);
     } catch (err) {
-      setChatHistory((prev) => [...prev, { role: 'ai', content: '⚠️ AI 응답을 불러오는 데 실패했습니다.' }]);
+      setChatHistory((prev) => [
+        ...prev,
+        { role: 'ai', content: '⚠️ AI 응답을 불러오는 데 실패했습니다.' },
+      ]);
     } finally {
       setChatInput('');
       setIsWaitingResponse(false);
@@ -134,8 +137,8 @@ export default function NewsDetail() {
       </div>
 
       <FileUploadArea
-        onExtractedText={(text) => setUploadedText(text)}
-        onFileSelected={(file) => setUploadedFile(file)} // ✅ 파일 선택 콜백 처리
+        onExtractedText={(text) => setUploadedText(text)} // ✅ 텍스트 추출 유지
+        onFileSelected={(file) => setUploadedFile(file)} // ✅ 파일 전달
       />
 
       <ChatBox
@@ -143,7 +146,7 @@ export default function NewsDetail() {
         setChatInput={setChatInput}
         chatHistory={chatHistory}
         onSubmit={handleChatSubmit}
-        isWaitingResponse={isWaitingResponse} // ✅ 로딩 상태 전달
+        isWaitingResponse={isWaitingResponse}
       />
     </div>
   );
