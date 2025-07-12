@@ -30,6 +30,7 @@ MYPRJ3_VER2/
 │   ├── components/               # 재사용 UI 컴포넌트
 │   │   ├── CategoryFilter.jsx    # 기업 카테고리 필터 버튼
 │   │   ├── ChatBox.jsx           # AI 분석 챗 UI
+|   |   ├── LodingSpinner.jsx     # 로딩 스피너 UI
 │   │   ├── FileUploadArea.jsx    # PDF/TXT 파일 업로드 및 텍스트 추출
 │   │   ├── Navbar.jsx            # 상단 네비게이션 바
 │   │   ├── NewsList.jsx          # 뉴스 카드 리스트
@@ -47,6 +48,7 @@ MYPRJ3_VER2/
 │   │   └── Signup.jsx            # 회원가입 페이지
 │   ├── store/                    # Zustand 전역 상태 관리
 │   │   ├── bookmarkStore.js      # 북마크 상태 관리
+│   │   ├── summaryStore.js       # 요약된 뉴스 로컬스토리지 저장장
 │   │   └── userStore.js          # 사용자 상태 관리
 │   ├── utils/                    # API 및 유틸 함수
 │   │   ├── api.js                # API 요청 함수 모음
@@ -87,7 +89,9 @@ VITE_API_URL=http://배포서버주소:8080
 ### 5.1 공통 컴포넌트
 - **Navbar**  
   상단 네비게이션 바. 로그인 여부에 따라 메뉴 변경. 로그인, 로그아웃, 즐겨찾기, 회원가입 등 처리
-
+- **LodingSpinner**
+  페이지 랜더링시 나오는 로딩 UI
+  
 ### 5.2 뉴스 및 카테고리 관련 컴포넌트
 - **CategoryFilter**  
   기업 카테고리 버튼 목록 렌더링. 선택 시 카테고리 필터링 적용
@@ -133,6 +137,17 @@ VITE_API_URL=http://배포서버주소:8080
   toggleBookmark(news),                // 북마크 추가/제거 및 localStorage 갱신
 }
 ```
+```js
+// summaryStore.js
+{
+  summaryMap: { [newsId]: summary },   // 뉴스 ID별 요약 텍스트 저장 객체
+  order: [newsId1, newsId2, ...],      // 최근 저장된 순서 (최대 30개)
+
+  getSummary(id),                      // 특정 뉴스 ID의 요약 가져오기
+  setSummary(id, summary),             // 요약 저장 (최대 30개 유지)
+  hasSummary(id),                      // 해당 ID의 요약 존재 여부 확인
+}
+```
 
 
 ## 7. API 연동
@@ -162,8 +177,8 @@ VITE_API_URL=http://배포서버주소:8080
 
 ### 파일 및 요약 관련 API
 
-- `uploadFiles(files)` : 문서 파일(PDF/TXT) 업로드 및 텍스트 추출
 - `fetchNewsSummary(newsId)` : 뉴스 기사에 대한 요약 요청 (AI 기반)
+- `fetchChatResponse({ newsId, question, file })` : AI 챗봇 질문 요청 (선택적 파일 첨부 가능)
 
 
 ## 8. 주요 기능
