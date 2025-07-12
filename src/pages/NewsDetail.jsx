@@ -14,7 +14,8 @@ export default function NewsDetail() {
   const [newsTitle, setNewsTitle] = useState('');
   const [newsDetail, setNewsDetail] = useState('');
   const [viewMode, setViewMode] = useState('full');
-  const [uploadedFile, setUploadedFile] = useState(null); // ✅ 파일 상태만 유지
+  const [uploadedText, setUploadedText] = useState('');
+  const [uploadedFile, setUploadedFile] = useState(null); // ✅ 파일 상태
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
@@ -135,7 +136,10 @@ export default function NewsDetail() {
         ))}
       </div>
 
-      <FileUploadArea onFileSelected={(file) => setUploadedFile(file)} />
+      <FileUploadArea
+        onExtractedText={(text) => setUploadedText(text)} // ✅ 텍스트 추출 유지
+        onFileSelected={(file) => setUploadedFile(file)} // ✅ 파일 전달
+      />
 
       <ChatBox
         chatInput={chatInput}

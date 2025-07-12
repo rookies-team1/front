@@ -166,21 +166,21 @@ export const fetchNewsSummary = async (newsId) => {
 };
 
 
-// AI 응답 요청
+
 // AI 응답 요청
 export const fetchChatResponse = async ({ newsId, question, file }) => {
-  const token = localStorage.getItem('accessToken'); // ✅ 토큰 가져오기
+  const token = localStorage.getItem('accessToken');
 
   const formData = new FormData();
   formData.append('newsId', newsId);
   formData.append('question', question);
-  if (file) formData.append('file', file); // ✅ 파일 선택 시 추가
+  if (file) formData.append('file', file);
 
   try {
     const response = await axiosInstance.post('/api/chat/ask', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`, // ✅ 필수 인증
+        'Authorization': `Bearer ${token}`,
+        // Content-Type 생략해야 boundary 자동 처리됨
       },
     });
 
@@ -194,3 +194,4 @@ export const fetchChatResponse = async ({ newsId, question, file }) => {
     throw new Error(error.message || 'AI 질문 중 오류 발생');
   }
 };
+
