@@ -2,35 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 종이 질감 배경 적용 */
+/* 글로벌 폰트 및 배경 */
 body {
-  @apply text-gray-900;
-  background-image: url('/paper-texture.png'), radial-gradient(circle, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-  background-repeat: repeat;
-  background-size: cover, 32px 32px;
-  font-family: 'Pretendard Variable', sans-serif;
+  @apply text-gray-800;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
-/* 공통 버튼 */
-.btn {
-  @apply px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200;
-}
-
-.btn-secondary {
-  @apply px-4 py-2 rounded bg-gray-300 text-gray-800 hover:bg-gray-400;
-}
-
-/* 카드형 뉴스 박스 */
+/* 카드형 뉴스 아이템 */
 .news-card {
-  @apply bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300;
+  @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
 }
 
 /* 뉴스 제목 */
 .news-title {
-  @apply text-xl font-semibold mb-2 hover:text-blue-600 cursor-pointer;
+  @apply text-lg font-bold text-gray-800 mb-2;
 }
 
-/* 뉴스 날짜 */
+/* 날짜 */
 .news-date {
-  @apply text-sm text-gray-500 mb-4;
+  @apply text-sm text-gray-500;
+}
+
+/* 버튼 스타일 */
+.btn {
+  @apply py-3 px-6 rounded-lg font-semibold transition duration-300;
+}
+
+.btn-primary {
+  @apply bg-indigo-600 text-white hover:bg-indigo-700 shadow-md;
+}
+
+.btn-secondary {
+  @apply bg-white text-gray-700 border border-gray-200 shadow-sm hover:bg-gray-50 hover:shadow-md;
 }

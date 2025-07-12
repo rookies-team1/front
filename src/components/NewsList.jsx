@@ -9,17 +9,17 @@ export default function NewsList({
   newsList,
 }) {
   return (
-    <ul className="space-y-8">
+    <ul className="space-y-6">
       {newsList.map((news) => {
         const isBookmarked = bookmarks.some((b) => b.id === news.id);
 
         return (
           <li
             key={news.id}
-            className="relative max-w-6xl mx-auto p-6 border border-gray-200 rounded-lg shadow-md transition-all duration-200 ease-in hover:shadow-lg hover:bg-gray-100 hover:scale-[1.01] cursor-pointer"
+            className="relative max-w-6xl mx-auto bg-white p-6 border border-gray-200 rounded-xl shadow-md transition-all duration-200 hover:shadow-lg hover:bg-gray-50 hover:scale-[1.01] cursor-pointer"
             onClick={() => onClickNews(news.id)}
           >
-            <h4 className="text-lg font-bold text-gray-900 group-hover:text-xl transition-all duration-150">
+            <h4 className="text-lg font-bold text-gray-900 transition-all duration-150">
               {news.title}
             </h4>
 
