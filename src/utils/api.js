@@ -164,3 +164,32 @@ export const fetchNewsSummary = async (newsId) => {
     };
   }
 };
+
+
+// AI 응답 요청
+export const fetchChatResponse = async ({ newsId, question, file }) => {
+  const token = localStorage.getItem('accessToken'); // ✅ 토큰 가져오기
+
+  const formData = new FormData();
+  formData.append('newsId', newsId);
+  formData.append('question', question);
+  if (file) formData.append('file', file); // ✅ 선택적으로 파일도 추가
+
+  try {
+    const response = await axiosInstance.post('/api/chat/ask', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}` // ✅ 필수
+      }
+    });
+
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.message || 'AI 응답 실패');
+    }
+  } catch (error) {
+    console.error('AI 질문 API 오류:', error);
+    throw new Error(error.message || 'AI 질문 중 오류 발생');
+  }
+};

@@ -1,133 +1,92 @@
 import { useState } from "react";
-import { uploadFiles } from "../utils/api"; // api.js에서 uploadFiles 함수 가져오기
+import { uploadFiles } from "../utils/api";
 
-export default function FileUploadArea({ onExtractedText }) {
-  const [files, setFiles] = useState([]);  // 선택된 파일 목록
-  const [isLoading, setIsLoading] = useState(false);  // 로딩 상태
-  const [error, setError] = useState(null);  // 에러 상태
-  const [dragOver, setDragOver] = useState(false);  // 드래그 상태
+export default function FileUploadArea({ onExtractedText, onFileSelected }) {
+  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
 
-  // 파일 선택시 처리
   const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);  // 기존 파일 목록에 새로운 파일 추가
-    setError(null);  // 에러 초기화
+    const selected = e.target.files[0];
+    if (validateFile(selected)) {
+      setFile(selected);
+      setError(null);
+      onFileSelected(selected);
+    }
   };
 
-  // 드래그한 파일을 처리하는 함수
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = () => {
-    setDragOver(false);
+  const validateFile = (file) => {
+    if (!file) return false;
+    const validTypes = ["application/pdf", "text/plain"];
+    if (!validTypes.includes(file.type)) {
+      setError("PDF 또는 TXT 파일만 업로드 가능합니다.");
+      return false;
+    }
+    return true;
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const selectedFiles = Array.from(e.dataTransfer.files);
-    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);  // 드래그한 파일을 기존 파일 목록에 추가
-    setError(null);  // 에러 초기화
+    const dropped = e.dataTransfer.files[0];
+    if (validateFile(dropped)) {
+      setFile(dropped);
+      onFileSelected(dropped);
+      setError(null);
+    }
     setDragOver(false);
   };
 
-  // 파일 업로드 처리
   const handleFileUpload = async () => {
-    if (files.length === 0) {
-      setError("파일을 선택해 주세요.");
-      return;
-    }
-
+    if (!file) return setError("파일을 선택해 주세요.");
     try {
       setIsLoading(true);
-      setError(null);
-
-      // API로 파일 업로드 요청
-      const response = await uploadFiles(files);  // api.js의 uploadFiles 함수 호출
-
-      // 서버에서 텍스트 데이터를 반환했다면
-      if (response && response.data && response.data.text) {
-        onExtractedText(response.data.text);  // 텍스트 처리 후 부모 컴포넌트로 전달
+      const response = await uploadFiles([file]);
+      if (response?.data?.text) {
+        onExtractedText(response.data.text);
       } else {
-        setError("파일 업로드에 실패했습니다.");  // 파일 업로드가 실패한 경우
+        setError("텍스트 추출에 실패했습니다.");
       }
-
-    } catch (error) {
-      setError(error.message || '파일 업로드에 실패했습니다.');  // 서버 에러 메시지 처리
-      console.error('파일 업로드 오류:', error);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 파일 취소 처리
-  const handleFileCancel = (fileName) => {
-    const updatedFiles = files.filter((file) => file.name !== fileName);  // 선택된 파일 목록에서 해당 파일 삭제
-    setFiles(updatedFiles);  // 상태 업데이트
-    setError(null);  // 에러 초기화
-  };
-
   return (
     <div className="space-y-4">
       <h4 className="text-lg font-semibold">📄 문서 업로드</h4>
-
-      {/* 드래그 앤 드롭 영역 */}
       <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-md p-6 text-center ${dragOver ? 'bg-blue-100' : 'bg-gray-50'}`}
       >
-        <p className="text-gray-500">{files.length === 0 ? '파일을 드래그하거나 선택해주세요' : files.map(file => file.name).join(', ')}</p>
+        <p className="text-gray-500">{file ? file.name : 'PDF 또는 TXT 파일을 드래그하거나 선택해주세요'}</p>
       </div>
 
-      {/* 파일 업로드 버튼 */}
       <div className="flex justify-end gap-2 mt-4">
         <button
           onClick={() => document.getElementById('file-upload').click()}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          파일 선택
-        </button>
+        >파일 선택</button>
         <button
           onClick={handleFileUpload}
-          disabled={isLoading || files.length === 0}
-          className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 ${isLoading ? 'bg-gray-400' : ''}`}
-        >
-          {isLoading ? '업로드 중...' : '파일 업로드'}
-        </button>
+          disabled={isLoading || !file}
+          className={`px-4 py-2 ${isLoading || !file ? 'bg-gray-400' : 'bg-blue-600'} text-white rounded-md hover:bg-blue-700`}
+        >{isLoading ? '업로드 중...' : '업로드'}</button>
       </div>
 
-      <input
-        type="file"
-        id="file-upload"
-        onChange={handleFileChange}
-        multiple // 다중 파일 선택 가능
-        accept=".txt, .pdf" // 텍스트와 PDF 파일만 받음
-        className="hidden"
-      />
+      <input type="file" id="file-upload" accept=".pdf,.txt" className="hidden" onChange={handleFileChange} />
 
-      {/* 파일 목록 및 취소 버튼 */}
-      {files.length > 0 && (
-        <div className="mt-4">
-          <ul className="space-y-2">
-            {files.map((file, index) => (
-              <li key={index} className="flex justify-between items-center bg-gray-100 p-2 rounded-md">
-                <span className="text-sm text-gray-700">{file.name}</span>
-                <button
-                  onClick={() => handleFileCancel(file.name)}
-                  className="text-sm text-red-500 hover:text-red-700"
-                >
-                  취소
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {file && (
+        <div className="mt-2 text-sm text-gray-700">선택된 파일: {file.name}</div>
       )}
 
-      {/* 에러 메시지 */}
       {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );

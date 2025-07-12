@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { fetchNewsDetail, fetchNewsSummary } from '../utils/api';
+import { fetchNewsDetail, fetchNewsSummary, fetchChatResponse } from '../utils/api';
 import { useSummaryStore } from '../store/summaryStore';
 import FileUploadArea from '../components/FileUploadArea';
 import ViewToggle from '../components/ViewToggle';
@@ -15,10 +15,12 @@ export default function NewsDetail() {
   const [newsDetail, setNewsDetail] = useState('');
   const [viewMode, setViewMode] = useState('full');
   const [uploadedText, setUploadedText] = useState('');
+  const [uploadedFile, setUploadedFile] = useState(null); // ✅ 파일 자체 상태 추가
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWaitingResponse, setIsWaitingResponse] = useState(false);
 
   const summaryMap = useSummaryStore((state) => state.summaryMap);
   const summary = summaryMap[id];
@@ -27,7 +29,6 @@ export default function NewsDetail() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-
         const newsData = await fetchNewsDetail(id);
         if (newsData?.data) {
           setNewsTitle(newsData.data.title);
@@ -57,15 +58,27 @@ export default function NewsDetail() {
     fetchData();
   }, [id]);
 
-  const handleChatSubmit = () => {
+  const handleChatSubmit = async () => {
     if (!chatInput.trim()) return;
+
     const userMsg = { role: 'user', content: chatInput };
-    const aiMsg = {
-      role: 'ai',
-      content: `📡 AI 응답 (예시): "${uploadedText.slice(0, 100)}..."`,
-    };
-    setChatHistory((prev) => [...prev, userMsg, aiMsg]);
-    setChatInput('');
+    setChatHistory((prev) => [...prev, userMsg]);
+    setIsWaitingResponse(true);
+
+    try {
+      const aiMsg = await fetchChatResponse({
+        newsId: id,
+        file: uploadedFile,
+        question: chatInput,
+      });
+
+      setChatHistory((prev) => [...prev, { role: 'ai', content: aiMsg }]);
+    } catch (err) {
+      setChatHistory((prev) => [...prev, { role: 'ai', content: '⚠️ AI 응답을 불러오는 데 실패했습니다.' }]);
+    } finally {
+      setChatInput('');
+      setIsWaitingResponse(false);
+    }
   };
 
   const groupSentences = (sentences, n = 3) => {
@@ -76,19 +89,19 @@ export default function NewsDetail() {
     return groups;
   };
 
-  const textToDisplay =
-    viewMode === 'full' ? newsDetail : summary || '요약된 내용이 없습니다.';
+  const textToDisplay = viewMode === 'full' ? newsDetail : summary || '요약된 내용이 없습니다.';
   const sentenceList = textToDisplay.split(/(?<=\.)\s+/);
   const paragraphList = groupSentences(sentenceList, 3);
 
   if (error)
     return <p className="text-red-500 font-semibold">{error}</p>;
   if (isLoading)
-  return (
-    <div className="flex items-center justify-center min-h-screen ">
-      <LoadingSpinner text="뉴스 및 요약을 불러오는 중입니다..."/>
-    </div>
-  );
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner text="뉴스 및 요약을 불러오는 중입니다..." />
+      </div>
+    );
+
   return (
     <div className="w-full max-w-screen-xl mx-auto px-6 py-10 space-y-10">
       <div>
@@ -120,13 +133,17 @@ export default function NewsDetail() {
         ))}
       </div>
 
-      <FileUploadArea onExtractedText={(text) => setUploadedText(text)} />
+      <FileUploadArea
+        onExtractedText={(text) => setUploadedText(text)}
+        onFileSelected={(file) => setUploadedFile(file)} // ✅ 파일 선택 콜백 처리
+      />
 
       <ChatBox
         chatInput={chatInput}
         setChatInput={setChatInput}
         chatHistory={chatHistory}
         onSubmit={handleChatSubmit}
+        isWaitingResponse={isWaitingResponse} // ✅ 로딩 상태 전달
       />
     </div>
   );
