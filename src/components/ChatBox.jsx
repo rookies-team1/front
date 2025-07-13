@@ -17,22 +17,25 @@ export default function ChatBox({
     .find((msg) => msg.role === "ai" && !!msg.content);
 
   useEffect(() => {
-    if (isWaitingResponse || !lastAiMsg?.content) {
+    if (
+      isWaitingResponse || !lastAiMsg?.content || isTyping ||
+      chatHistory.length === 0
+    ) {
       setTypingMessage("");
       setIsTyping(false);
       return;
     }
 
+    const chars = Array.from(lastAiMsg.content ?? "");
     let i = 0;
-    const text = lastAiMsg.content ?? "";
     setTypingMessage("");
     setIsTyping(true);
 
     const interval = setInterval(() => {
       setTypingMessage((prev) => {
-        const next = prev + text[i];
+        const next = prev + chars[i];
         i++;
-        if (i >= text.length) {
+        if (i >= chars.length) {
           clearInterval(interval);
           setIsTyping(false);
         }
@@ -51,6 +54,7 @@ export default function ChatBox({
     <div className="mt-10">
       <h3 className="text-2xl font-bold text-gray-800 mb-4">AI에게 질문하기</h3>
 
+      {/* 입력창 */}
       <div className="flex gap-4 mb-4">
         <input
           type="text"
@@ -73,29 +77,39 @@ export default function ChatBox({
         </button>
       </div>
 
+      {/* 채팅 박스 */}
       <div className="bg-gray-50 p-6 rounded-md border min-h-[180px] max-h-[600px] overflow-y-auto space-y-4 text-base leading-relaxed">
-        {chatHistory.map((msg, idx) => {
-          const isLastAi = msg === lastAiMsg;
-          return (
-            <div key={idx} className={msg.role === "user" ? "text-right" : "text-left"}>
-              <div
-                className={`inline-block px-4 py-3 rounded-md whitespace-pre-wrap text-left break-words max-w-full ${
-                  msg.role === "user"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                {msg.role === "ai" && isLastAi && isTyping ? (
-                  <ReactMarkdown>{typingMessage ?? ""}</ReactMarkdown>
-                ) : msg.role === "ai" ? (
-                  <ReactMarkdown>{msg.content ?? ""}</ReactMarkdown>
-                ) : (
-                  msg.content
-                )}
+
+        {chatHistory.length === 0 && !isWaitingResponse ? (
+          <div className="flex flex-col items-center justify-center text-center text-gray-400 py-20">
+            <span className="text-4xl mb-3">💬</span>
+            <p className="text-lg font-semibold">AI와의 첫 대화를 시작해봐요!</p>
+            <p className="text-sm text-gray-300 mt-1">입력창에 질문을 작성해보세요.</p>
+          </div>
+        ) : (
+          chatHistory.map((msg, idx) => {
+            const isLastAi = msg === lastAiMsg;
+            return (
+              <div key={idx} className={msg.role === "user" ? "text-right" : "text-left"}>
+                <div
+                  className={`inline-block px-4 py-3 rounded-md whitespace-pre-wrap text-left break-words max-w-full ${
+                    msg.role === "user"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-gray-200 text-gray-800"
+                  }`}
+                >
+                  {msg.role === "ai" && isLastAi && isTyping ? (
+                    <ReactMarkdown>{typingMessage}</ReactMarkdown>
+                  ) : msg.role === "ai" ? (
+                    <ReactMarkdown>{msg.content ?? ""}</ReactMarkdown>
+                  ) : (
+                    msg.content
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
 
         {isWaitingResponse && (
           <div className="text-left text-gray-500 animate-pulse">

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { fetchNewsDetail, fetchNewsSummary, fetchChatResponse } from '../utils/api';
+import { fetchNewsDetail, fetchNewsSummary, fetchChatResponse, fetchChatHistory } from '../utils/api';
 import { useSummaryStore } from '../store/summaryStore';
 import FileUploadArea from '../components/FileUploadArea';
 import ViewToggle from '../components/ViewToggle';
@@ -23,7 +23,7 @@ export default function NewsDetail() {
   const [isWaitingResponse, setIsWaitingResponse] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [summaryStartTime, setSummaryStartTime] = useState(null);
-  const [summaryError, setSummaryError] = useState(null); // ✅ 실패 여부
+  const [summaryError, setSummaryError] = useState(null);
 
   const summaryMap = useSummaryStore((state) => state.summaryMap);
   const summary = summaryMap[id];
@@ -39,6 +39,10 @@ export default function NewsDetail() {
         } else {
           setError('뉴스 데이터가 잘못되었습니다.');
         }
+
+        // ✅ 채팅 기록 불러오기
+        const history = await fetchChatHistory(id);
+        setChatHistory(history);
       } catch (error) {
         console.error('데이터 요청 오류:', error);
         setError('뉴스 데이터를 불러오는 데 문제가 발생했습니다.');
@@ -78,7 +82,6 @@ export default function NewsDetail() {
   };
 
   const handleRetrySummary = () => {
-    // 요약 다시 시도
     handleSummaryView();
   };
 
@@ -120,8 +123,8 @@ export default function NewsDetail() {
     viewMode === 'full'
       ? newsDetail
       : summaryError
-        ? ''
-        : summary || '요약된 내용이 없습니다.';
+      ? ''
+      : summary || '요약된 내용이 없습니다.';
   const sentenceList = textToDisplay.split(/(?<=\.)\s+/);
   const paragraphList = groupSentences(sentenceList, 3);
 
@@ -186,7 +189,6 @@ export default function NewsDetail() {
         )}
       </div>
 
-      {/* 요약 중이거나 실패한 경우 질문/업로드 숨김 */}
       {!(viewMode === 'summary' && (isSummarizing || summaryError)) && (
         <>
           <FileUploadArea
