@@ -48,12 +48,12 @@ export default function NewsDetail() {
 
         const history = await fetchChatHistory(id);
         setChatHistory(history);
-        setChatReady(true);
       } catch (error) {
         console.error('데이터 요청 오류:', error);
         setError('뉴스 데이터를 불러오는 데 문제가 발생했습니다.');
       } finally {
         setIsLoading(false);
+        setChatReady(true); // ✅ 로딩이 끝난 이후에만 chatReady true
       }
     };
 

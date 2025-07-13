@@ -11,7 +11,9 @@ export default function ChatBox({
   const bottomRef = useRef(null);
   const [typingMessage, setTypingMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const prevLastAiMsg = useRef(""); // ✅ 이전 AI 메시지 기억
+
+  const prevLastAiMsg = useRef("");
+  const hasInitialLoadFinished = useRef(false); // ✅ 최초 렌더링 여부 확인
 
   const lastAiMsg = [...chatHistory]
     .reverse()
@@ -20,27 +22,26 @@ export default function ChatBox({
   useEffect(() => {
     const currentContent = lastAiMsg?.content;
 
-    if (
-      isWaitingResponse ||
-      !currentContent ||
-      isTyping ||
-      chatHistory.length === 0
-    ) {
-      setTypingMessage("");
+    if (!currentContent || isWaitingResponse || isTyping) return;
+
+    if (!hasInitialLoadFinished.current) {
+      // 최초 렌더링 시엔 애니메이션 없이 표시
+      setTypingMessage(currentContent);
       setIsTyping(false);
+      prevLastAiMsg.current = currentContent;
+      hasInitialLoadFinished.current = true;
       return;
     }
 
-    // ✅ 같은 응답이면 타자 애니메이션 생략
+    // 이전 메시지와 같다면 애니메이션 하지 않음
     if (prevLastAiMsg.current === currentContent) {
       setTypingMessage(currentContent);
       setIsTyping(false);
       return;
     }
 
-    // ✅ 새로운 응답이면 애니메이션 실행
+    // 새로운 응답이면 애니메이션 실행
     prevLastAiMsg.current = currentContent;
-
     const chars = Array.from(currentContent);
     let i = 0;
     setTypingMessage("");
@@ -59,9 +60,8 @@ export default function ChatBox({
     }, 15);
 
     return () => clearInterval(interval);
-  }, [lastAiMsg?.content, isWaitingResponse, chatHistory.length]);
+  }, [lastAiMsg?.content, isWaitingResponse]);
 
-  // 스크롤 아래로 이동
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory, typingMessage]);
@@ -69,8 +69,6 @@ export default function ChatBox({
   return (
     <div className="mt-10">
       <h3 className="text-2xl font-bold text-gray-800 mb-4">AI에게 질문하기</h3>
-
-      {/* 입력창 */}
       <div className="flex gap-4 mb-4">
         <input
           type="text"
@@ -93,7 +91,6 @@ export default function ChatBox({
         </button>
       </div>
 
-      {/* 채팅 박스 */}
       <div className="bg-gray-50 p-6 rounded-md border min-h-[180px] max-h-[600px] overflow-y-auto space-y-4 text-base leading-relaxed">
         {chatHistory.length === 0 && !isWaitingResponse ? (
           <div className="flex flex-col items-center justify-center text-center text-gray-400 py-20">
@@ -125,7 +122,6 @@ export default function ChatBox({
             );
           })
         )}
-
         {isWaitingResponse && (
           <div className="text-left text-gray-500 animate-pulse">AI 응답 생성 중...</div>
         )}
