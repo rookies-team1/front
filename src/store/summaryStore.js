@@ -5,7 +5,7 @@ export const useSummaryStore = create(
   persist(
     (set, get) => ({
       summaryMap: {},
-      order: [], // ⬅ summary 저장 순서 기록
+      order: [],
 
       getSummary: (id) => get().summaryMap[id],
 
@@ -13,19 +13,21 @@ export const useSummaryStore = create(
         const currentMap = get().summaryMap;
         const currentOrder = get().order;
 
-        // 이미 존재하는 경우 순서만 조정
+        // 순서 업데이트 (불변성 유지)
         let newOrder = currentOrder.filter((key) => key !== id);
-        newOrder.push(id);
+        newOrder = [...newOrder, id];
 
         // 30개 초과 시 가장 오래된 것 제거
+        let newMap = { ...currentMap };
         if (newOrder.length > 30) {
-          const oldestId = newOrder.shift(); // FIFO 구조
-          delete currentMap[oldestId];
+          const oldestId = newOrder.shift(); // FIFO
+          delete newMap[oldestId];
         }
 
+        // 새 상태 설정
         set({
           summaryMap: {
-            ...currentMap,
+            ...newMap,
             [id]: summary,
           },
           order: newOrder,
@@ -33,9 +35,16 @@ export const useSummaryStore = create(
       },
 
       hasSummary: (id) => !!get().summaryMap[id],
+
+      // 전체 초기화 함수 추가 (사용 시점 자유)
+      clearSummaries: () =>
+        set({
+          summaryMap: {},
+          order: [],
+        }),
     }),
     {
-      name: 'summary-storage',
+      name: 'summary-storage', // localStorage 키 이름
     }
   )
 );

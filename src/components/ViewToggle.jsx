@@ -1,6 +1,6 @@
 const baseClass = "px-6 py-2 rounded-md text-sm font-medium transition-all";
 
-export default function ViewToggle({ viewMode, onFullView, onSummaryView }) {
+export default function ViewToggle({ viewMode, onFullView, onSummaryView, disabled }) {
   return (
     <div className="flex gap-4 mb-6">
       <button
@@ -19,9 +19,9 @@ export default function ViewToggle({ viewMode, onFullView, onSummaryView }) {
           viewMode === "summary"
             ? "bg-blue-600 text-white"
             : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-        }`}
+        } ${disabled ? "opacity-50" : ""}`}  // ← cursor-not-allowed 제거
       >
-        요약 보기
+        {disabled ? "요약 중..." : "요약 보기"}
       </button>
     </div>
   );

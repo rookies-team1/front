@@ -97,29 +97,7 @@ export const refreshToken = async () => {
 };
 
 
-export const uploadFiles = async (files) => {
-  const formData = new FormData(); // FormData 객체 생성
 
-  files.forEach((file) => {
-    formData.append('files', file); // 여러 파일을 FormData에 추가
-  });
-  // formData.forEach((el)=>console.log(el))
-  const token = localStorage.getItem('accessToken'); // 로컬 스토리지에서 토큰 가져오기
-
-  try {
-    const response = await axiosInstance.post('/file/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',  // 멀티파트 폼 데이터로 전송
-        'Authorization': `Bearer ${token}`,    // Authorization 헤더에 토큰 포함
-      },
-    });
-
-    return response.data;  // 서버에서 반환한 데이터 반환
-  } catch (error) {
-    console.error('파일 업로드 실패:', error);
-    throw new Error('파일 업로드에 실패했습니다.');
-  }
-};
 
 
 export const requestEmailVerification = async (email) => {

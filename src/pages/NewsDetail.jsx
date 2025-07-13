@@ -15,12 +15,15 @@ export default function NewsDetail() {
   const [newsDetail, setNewsDetail] = useState('');
   const [viewMode, setViewMode] = useState('full');
   const [uploadedText, setUploadedText] = useState('');
-  const [uploadedFile, setUploadedFile] = useState(null); // ✅ 파일 상태
+  const [uploadedFile, setUploadedFile] = useState(null);
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isWaitingResponse, setIsWaitingResponse] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [summaryStartTime, setSummaryStartTime] = useState(null);
+  const [summaryError, setSummaryError] = useState(null); // ✅ 실패 여부
 
   const summaryMap = useSummaryStore((state) => state.summaryMap);
   const summary = summaryMap[id];
@@ -35,21 +38,10 @@ export default function NewsDetail() {
           setNewsDetail(newsData.data.contents);
         } else {
           setError('뉴스 데이터가 잘못되었습니다.');
-          return;
-        }
-
-        const { hasSummary, setSummary } = useSummaryStore.getState();
-        if (!hasSummary(id)) {
-          const summaryData = await fetchNewsSummary(id);
-          if (summaryData.error) {
-            setSummary(id, '❌ 요약 실패: ' + summaryData.error_content);
-          } else {
-            setSummary(id, summaryData.summary);
-          }
         }
       } catch (error) {
         console.error('데이터 요청 오류:', error);
-        setError('뉴스 또는 요약 데이터를 불러오는 데 문제가 발생했습니다.');
+        setError('뉴스 데이터를 불러오는 데 문제가 발생했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -57,6 +49,38 @@ export default function NewsDetail() {
 
     fetchData();
   }, [id]);
+
+  const handleSummaryView = async () => {
+    setViewMode('summary');
+    const { hasSummary, setSummary } = useSummaryStore.getState();
+
+    if (!hasSummary(id) && !isSummarizing) {
+      try {
+        setSummaryError(null);
+        setSummaryStartTime(Date.now());
+        setIsSummarizing(true);
+
+        const summaryData = await fetchNewsSummary(id);
+        if (summaryData.error) {
+          setSummary(id, `❌ 요약 실패: ${summaryData.error_content}`);
+          setSummaryError(summaryData.error_content);
+        } else {
+          setSummary(id, summaryData.summary);
+        }
+      } catch (error) {
+        console.error('요약 요청 실패:', error);
+        setSummary(id, '❌ 요약 실패: 알 수 없는 오류');
+        setSummaryError('알 수 없는 오류');
+      } finally {
+        setIsSummarizing(false);
+      }
+    }
+  };
+
+  const handleRetrySummary = () => {
+    // 요약 다시 시도
+    handleSummaryView();
+  };
 
   const handleChatSubmit = async () => {
     if (!chatInput.trim()) return;
@@ -92,16 +116,22 @@ export default function NewsDetail() {
     return groups;
   };
 
-  const textToDisplay = viewMode === 'full' ? newsDetail : summary || '요약된 내용이 없습니다.';
+  const textToDisplay =
+    viewMode === 'full'
+      ? newsDetail
+      : summaryError
+        ? ''
+        : summary || '요약된 내용이 없습니다.';
   const sentenceList = textToDisplay.split(/(?<=\.)\s+/);
   const paragraphList = groupSentences(sentenceList, 3);
 
   if (error)
     return <p className="text-red-500 font-semibold">{error}</p>;
+
   if (isLoading)
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner text="뉴스 및 요약을 불러오는 중입니다..." />
+        <LoadingSpinner text="뉴스를 불러오는 중입니다..." />
       </div>
     );
 
@@ -121,33 +151,58 @@ export default function NewsDetail() {
       <ViewToggle
         viewMode={viewMode}
         onFullView={() => setViewMode('full')}
-        onSummaryView={() => setViewMode('summary')}
+        onSummaryView={handleSummaryView}
+        disabled={isSummarizing}
       />
 
-      <div className="w-full bg-white border p-10 rounded-xl shadow-xl max-h-[80vh] overflow-y-auto">
-        {paragraphList.map((para, idx) => (
-          <p
-            key={idx}
-            className="text-lg md:text-xl leading-relaxed text-gray-800 font-serif mb-6"
-            style={{ textIndent: '2em', whiteSpace: 'pre-wrap' }}
-          >
-            {para.trim()}
-          </p>
-        ))}
+      <div className="w-full bg-white border p-10 rounded-xl shadow-xl max-h-[80vh] overflow-y-auto min-h-[200px]">
+        {viewMode === 'summary' && isSummarizing ? (
+          <LoadingSpinner
+            text="AI가 뉴스를 열심히 요약 중입니다!"
+            startTime={summaryStartTime}
+          />
+        ) : viewMode === 'summary' && summaryError ? (
+          <div className="text-center space-y-4">
+            <p className="text-red-500 text-lg font-semibold">
+              ⚠️ 요약에 실패했습니다: {summaryError}
+            </p>
+            <button
+              onClick={handleRetrySummary}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              다시 시도하기
+            </button>
+          </div>
+        ) : (
+          paragraphList.map((para, idx) => (
+            <p
+              key={idx}
+              className="text-lg md:text-xl leading-relaxed text-gray-800 font-serif mb-6"
+              style={{ textIndent: '2em', whiteSpace: 'pre-wrap' }}
+            >
+              {para.trim()}
+            </p>
+          ))
+        )}
       </div>
 
-      <FileUploadArea
-        onExtractedText={(text) => setUploadedText(text)} // ✅ 텍스트 추출 유지
-        onFileSelected={(file) => setUploadedFile(file)} // ✅ 파일 전달
-      />
+      {/* 요약 중이거나 실패한 경우 질문/업로드 숨김 */}
+      {!(viewMode === 'summary' && (isSummarizing || summaryError)) && (
+        <>
+          <FileUploadArea
+            onExtractedText={(text) => setUploadedText(text)}
+            onFileSelected={(file) => setUploadedFile(file)}
+          />
 
-      <ChatBox
-        chatInput={chatInput}
-        setChatInput={setChatInput}
-        chatHistory={chatHistory}
-        onSubmit={handleChatSubmit}
-        isWaitingResponse={isWaitingResponse}
-      />
+          <ChatBox
+            chatInput={chatInput}
+            setChatInput={setChatInput}
+            chatHistory={chatHistory}
+            onSubmit={handleChatSubmit}
+            isWaitingResponse={isWaitingResponse}
+          />
+        </>
+      )}
     </div>
   );
 }
