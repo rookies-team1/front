@@ -175,3 +175,30 @@ export const fetchChatResponse = async ({ newsId, question, file }) => {
   }
 };
 
+
+// 뉴스별 채팅 히스토리 조회
+export const fetchChatHistory = async (newsId) => {
+  const token = localStorage.getItem('accessToken');
+
+  try {
+    const response = await axiosInstance.get(`/api/chat/chat-history/${newsId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.success && Array.isArray(response.data.data)) {
+      // { role: 'user' | 'ai', content: string } 형태로 변환
+      const history = response.data.data.flatMap((item) => [
+        { role: 'user', content: item.question.content },
+        { role: 'ai', content: item.answer.content },
+      ]);
+      return history;
+    } else {
+      return []; // 기록 없음 처리
+    }
+  } catch (error) {
+    console.error('채팅 기록 조회 실패:', error);
+    return [];
+  }
+};
