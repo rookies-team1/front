@@ -21,9 +21,12 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b shadow-sm sticky top-0 z-50">
       <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-blue-700 hover:opacity-80 transition">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-2xl font-bold text-blue-700 hover:opacity-80 transition"
+        >
           <img
-            src="/favicon/favicon-96x96.png"
+            src={`${import.meta.env.BASE_URL}favicon/favicon-96x96.png`} // ✅ 안전한 경로 처리
             alt="로고"
             className="w-8 h-8"
           />
@@ -31,7 +34,6 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4 text-sm font-medium">
-          {/* 즐겨찾기 클릭 시 로그인 확인 */}
           <Link
             to="/bookmark"
             onClick={handleBookmarkClick}
@@ -43,7 +45,7 @@ export default function Navbar() {
           {user ? (
             <>
               <span className="text-gray-800 font-semibold flex items-center gap-1">
-                👤 <span>{user.name}님</span>
+                👤 <span>{user.name}님</span> {/* ✅ username 표시 */}
               </span>
               <button
                 onClick={handleLogout}
