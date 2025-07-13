@@ -1,6 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { fetchNewsDetail, fetchNewsSummary, fetchChatResponse, fetchChatHistory } from '../utils/api';
+import {
+  fetchNewsDetail,
+  fetchNewsSummary,
+  fetchChatResponse,
+  fetchChatHistory,
+} from '../utils/api';
 import { useSummaryStore } from '../store/summaryStore';
 import FileUploadArea from '../components/FileUploadArea';
 import ViewToggle from '../components/ViewToggle';
@@ -24,6 +29,7 @@ export default function NewsDetail() {
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [summaryStartTime, setSummaryStartTime] = useState(null);
   const [summaryError, setSummaryError] = useState(null);
+  const [chatReady, setChatReady] = useState(false);
 
   const summaryMap = useSummaryStore((state) => state.summaryMap);
   const summary = summaryMap[id];
@@ -40,9 +46,9 @@ export default function NewsDetail() {
           setError('뉴스 데이터가 잘못되었습니다.');
         }
 
-        // ✅ 채팅 기록 불러오기
         const history = await fetchChatHistory(id);
         setChatHistory(history);
+        setChatReady(true);
       } catch (error) {
         console.error('데이터 요청 오류:', error);
         setError('뉴스 데이터를 불러오는 데 문제가 발생했습니다.');
@@ -81,10 +87,6 @@ export default function NewsDetail() {
     }
   };
 
-  const handleRetrySummary = () => {
-    handleSummaryView();
-  };
-
   const handleChatSubmit = async () => {
     if (!chatInput.trim()) return;
 
@@ -98,9 +100,8 @@ export default function NewsDetail() {
         file: uploadedFile,
         question: chatInput,
       });
-
       setChatHistory((prev) => [...prev, { role: 'ai', content: aiMsg }]);
-    } catch (err) {
+    } catch {
       setChatHistory((prev) => [
         ...prev,
         { role: 'ai', content: '⚠️ AI 응답을 불러오는 데 실패했습니다.' },
@@ -111,6 +112,14 @@ export default function NewsDetail() {
     }
   };
 
+  const textToDisplay =
+    viewMode === 'full'
+      ? newsDetail
+      : summaryError
+      ? ''
+      : summary || '요약된 내용이 없습니다.';
+
+  const sentenceList = textToDisplay.split(/(?<=\.)\s+/);
   const groupSentences = (sentences, n = 3) => {
     const groups = [];
     for (let i = 0; i < sentences.length; i += n) {
@@ -119,17 +128,9 @@ export default function NewsDetail() {
     return groups;
   };
 
-  const textToDisplay =
-    viewMode === 'full'
-      ? newsDetail
-      : summaryError
-      ? ''
-      : summary || '요약된 내용이 없습니다.';
-  const sentenceList = textToDisplay.split(/(?<=\.)\s+/);
   const paragraphList = groupSentences(sentenceList, 3);
 
-  if (error)
-    return <p className="text-red-500 font-semibold">{error}</p>;
+  if (error) return <p className="text-red-500 font-semibold">{error}</p>;
 
   if (isLoading)
     return (
@@ -140,14 +141,12 @@ export default function NewsDetail() {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-6 py-10 space-y-10">
-      <div>
-        <button
-          onClick={() => navigate(-1)}
-          className="text-sm px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all"
-        >
-          ← 뒤로가기
-        </button>
-      </div>
+      <button
+        onClick={() => navigate(-1)}
+        className="text-sm px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+      >
+        ← 뒤로가기
+      </button>
 
       <h2 className="text-4xl font-bold text-gray-900">{newsTitle}</h2>
 
@@ -170,8 +169,8 @@ export default function NewsDetail() {
               ⚠️ 요약에 실패했습니다: {summaryError}
             </p>
             <button
-              onClick={handleRetrySummary}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              onClick={handleSummaryView}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               다시 시도하기
             </button>
@@ -196,13 +195,15 @@ export default function NewsDetail() {
             onFileSelected={(file) => setUploadedFile(file)}
           />
 
-          <ChatBox
-            chatInput={chatInput}
-            setChatInput={setChatInput}
-            chatHistory={chatHistory}
-            onSubmit={handleChatSubmit}
-            isWaitingResponse={isWaitingResponse}
-          />
+          {chatReady && (
+            <ChatBox
+              chatInput={chatInput}
+              setChatInput={setChatInput}
+              chatHistory={chatHistory}
+              onSubmit={handleChatSubmit}
+              isWaitingResponse={isWaitingResponse}
+            />
+          )}
         </>
       )}
     </div>
