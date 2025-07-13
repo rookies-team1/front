@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { signIn } from "../utils/api";
 import { useForm } from "../hooks/useForm";
-import { useUserStore } from "../store/userStore"; // Zustand 사용자/토큰 상태 사용
+import { useUserStore } from "../store/userStore";
 
 export default function Login() {
   const { form, handleChange, error, setError } = useForm({
@@ -10,22 +10,22 @@ export default function Login() {
   });
 
   const navigate = useNavigate();
-  const { setUser, setToken } = useUserStore(); // 전역 상태 설정 함수
+  const { setUser, setToken } = useUserStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const token = await signIn({
+      const { accessToken, username } = await signIn({
         email: form.email,
         password: form.password,
       });
 
       // 상태로 저장
-      setToken(token);
+      setToken(accessToken);
       setUser({
         email: form.email,
-        name: form.email.split("@")[0],
+        name: username, // ✅ username 저장
       });
 
       navigate("/");

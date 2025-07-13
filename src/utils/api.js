@@ -70,19 +70,21 @@ export const signIn = async (loginData) => {
     const response = await axiosInstance.post('/auth/signin', loginData);
 
     if (response.data.success) {
-      return response.data.data.accessToken; // accessToken 반환
+      const { accessToken, username } = response.data.data;
+      return { accessToken, username }; // ✅ username도 함께 반환
     } else {
       throw new Error(response.data.message || "로그인에 실패했습니다.");
     }
   } catch (error) {
     if (error.response) {
       const errorMessage = error.response?.data?.errorMessage || "로그인에 실패했습니다.";
-      throw new Error(errorMessage);  // 서버에서 받은 에러 메시지 반환
+      throw new Error(errorMessage);
     } else {
       throw new Error("네트워크 오류입니다.");
     }
   }
 };
+
 
 // 토큰 재발급 (선택적)
 export const refreshToken = async () => {
