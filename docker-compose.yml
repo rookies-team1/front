@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    image: hanmg412/prj3:fclient0.4
+    image: hanmg412/prj3:fclient0.5
     container_name: react-client
     ports:
       - "80:80"

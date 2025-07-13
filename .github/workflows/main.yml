@@ -15,7 +15,7 @@ on:
 env:
   DOCKER_IMAGE: prj3
   #DOCKER_TAG: latest  # 최신 태그로 항상 덮어씌움
-  DOCKER_TAG: fclient0.4
+  DOCKER_TAG: fclient0.5
 
 jobs:
   Docker:
