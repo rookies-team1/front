@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import logo from '../assets/logo.png'; 
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -26,7 +27,7 @@ export default function Navbar() {
           className="flex items-center gap-2 text-2xl font-bold text-blue-700 hover:opacity-80 transition"
         >
           <img
-            src={`${import.meta.env.BASE_URL}favicon/favicon-96x96.png`} // ✅ 안전한 경로 처리
+            src={logo} 
             alt="로고"
             className="w-8 h-8"
           />
@@ -45,7 +46,7 @@ export default function Navbar() {
           {user ? (
             <>
               <span className="text-gray-800 font-semibold flex items-center gap-1">
-                👤 <span>{user.name}님</span> {/* ✅ username 표시 */}
+                👤 <span>{user.name}님</span>
               </span>
               <button
                 onClick={handleLogout}
