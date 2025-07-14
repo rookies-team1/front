@@ -7,7 +7,7 @@ import { useBookmarkStore } from '../store/bookmarkStore';
 import CategoryFilter from '../components/CategoryFilter';
 import NewsList from '../components/NewsList';
 import Pagination from '../components/Pagination';
-import LoadingSpinner from '../components/LoadingSpinner'; // ✅ 추가
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -21,6 +21,12 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [newsPerPage] = useState(10);
+
+  // ✅ 카테고리 변경 핸들러 - 페이지 초기화 포함
+  const handleSelectCategory = (category) => {
+    setSelectedCategory(category);
+    setCurrentPage(1); // 🔧 페이지 초기화 핵심!
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +73,7 @@ export default function Home() {
       <CategoryFilter
         companies={companies}
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={handleSelectCategory} // ✅ 여기만 바뀜
       />
 
       <h3 className="text-xl font-semibold text-gray-800 mb-4">📰 뉴스 목록</h3>
