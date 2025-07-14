@@ -25,7 +25,7 @@ export default function Login() {
       setToken(accessToken);
       setUser({
         email: form.email,
-        name: username, // ✅ username 저장
+        name: username, // username 저장
       });
 
       navigate("/");

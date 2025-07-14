@@ -7,7 +7,7 @@ import { useBookmarkStore } from '../store/bookmarkStore';
 import CategoryFilter from '../components/CategoryFilter';
 import NewsList from '../components/NewsList';
 import Pagination from '../components/Pagination';
-import LoadingSpinner from '../components/LoadingSpinner'; 
+import LoadingSpinner from '../components/LoadingSpinner'; // ✅ 추가
 
 export default function Home() {
   const navigate = useNavigate();
