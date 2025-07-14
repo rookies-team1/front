@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchCompanies, fetchNewsTitles, fetchNewsByCompany } from '../utils/api';
-import { useUserStore } from '../store/userStore';
+import { useAuth } from '../hooks/useAuth';
 import { useBookmarkStore } from '../store/bookmarkStore';
 
 import CategoryFilter from '../components/CategoryFilter';
 import NewsList from '../components/NewsList';
 import Pagination from '../components/Pagination';
-import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingSpinner from '../components/LoadingSpinner'; 
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useUserStore();
+  const { user } = useAuth();
   const { bookmarks, toggleBookmark } = useBookmarkStore();
 
   const [companies, setCompanies] = useState([]);

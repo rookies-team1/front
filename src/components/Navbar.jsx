@@ -1,21 +1,21 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useUserStore } from "../store/userStore";
-import logo from '../assets/logo.png';
+import { useAuth } from "../hooks/useAuth";
+import logo from '../assets/logo.png'; 
 
 export default function Navbar() {
-  const { user, clearAuth } = useUserStore();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    clearAuth();
+    logout();
     navigate("/login");
   };
 
   const handleBookmarkClick = (e) => {
     if (!user) {
-      e.preventDefault();
+      e.preventDefault(); // 라우터 이동 막기
       alert("로그인 후 이용 가능합니다.");
-      navigate("/login");
+      navigate("/login"); // 명시적으로 로그인 페이지로 이동
     }
   };
 
@@ -26,7 +26,11 @@ export default function Navbar() {
           to="/"
           className="flex items-center gap-2 text-2xl font-bold text-blue-700 hover:opacity-80 transition"
         >
-          <img src={logo} alt="로고" className="w-8 h-8" />
+          <img
+            src={logo} 
+            alt="로고"
+            className="w-8 h-8"
+          />
           <span>이미 직원</span>
         </Link>
 

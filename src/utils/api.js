@@ -1,7 +1,4 @@
-import axios from 'axios';
 import axiosInstance from './axiosInstance';
-import { useUserStore } from '../store/userStore';
-
 
 // 기업 목록 가져오기
 export const fetchCompanies = async () => {
@@ -68,10 +65,7 @@ export const signUp = async (formData) => {
 // 로그인
 export const signIn = async (loginData) => {
   try {
-    const response = await axiosInstance.post('/auth/signin', loginData, {
-      withCredentials: true, // 쿠키 저장을 위해 필요
-    });
-
+    const response = await axiosInstance.post('/auth/signin', loginData);
     if (response.data.success) {
       const { accessToken, username } = response.data.data;
       return { accessToken, username };
@@ -79,34 +73,24 @@ export const signIn = async (loginData) => {
       throw new Error(response.data.message || "로그인에 실패했습니다.");
     }
   } catch (error) {
-    throw new Error(
-      error.response?.data?.errorMessage || "로그인 요청 중 오류 발생"
-    );
+    if (error.response) {
+      const errorMessage = error.response?.data?.errorMessage || "로그인에 실패했습니다.";
+      throw new Error(errorMessage);
+    } else {
+      throw new Error("네트워크 오류입니다.");
+    }
   }
 };
 
-// 리프레시 (axiosInstance 내부에서도 호출됨)
+// 토큰 재발급
 export const refreshToken = async () => {
   try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/auth/refresh`,
-      {},
-      { withCredentials: true }
-    );
+    const token = localStorage.getItem('token');
+    const response = await axiosInstance.post('/auth/refresh', { token });
     return response.data;
   } catch (error) {
-    throw new Error("토큰 재발급에 실패했습니다.");
-  }
-};
-
-
-// 로그아웃
-export const signOut = async () => {
-  try {
-    await axiosInstance.post('/auth/signout', {}, { withCredentials: true });
-    useUserStore.getState().clearAuth();
-  } catch (error) {
-    console.error("로그아웃 실패:", error);
+    console.error("Error during token refresh:", error);
+    throw new Error('토큰 재발급에 실패했습니다. 다시 로그인 해주세요.');
   }
 };
 
