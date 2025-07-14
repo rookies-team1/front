@@ -5,19 +5,42 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Bookmark from "./pages/Bookmark";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute"; // ✅ 추가
 
 function AppContent() {
-  // const location = useLocation();
-
   return (
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/news/:id" element={<NewsDetail />} />
+        {/* 로그인 없이 접근 가능한 라우트 */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/bookmark" element={<Bookmark />} />
+
+        {/* 로그인 필수인 라우트들 */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/news/:id"
+          element={
+            <ProtectedRoute>
+              <NewsDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bookmark"
+          element={
+            <ProtectedRoute>
+              <Bookmark />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );
